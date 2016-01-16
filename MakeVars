@@ -1,0 +1,35 @@
+#
+# gmake variables common to all qci Makefile's
+#
+
+.SUFFIXES: .exe
+
+PRJDIR   = /home/fredpatrick/wrk/trk/v0.0
+TRK_DIR  = $(PRJDIR)
+
+TRK_LIB_DIR    = $(TRK_DIR)/lib
+ALL_LIB_DIRS   = $(TRK_LIB_DIR)
+
+TRK_VERSION     = $(shell tr b \. < $(TRK_DIR)/VERSION)
+
+CXX             = c++ 
+CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
+INCFLAGS        = -I.  -I$(TRK_DIR)/include
+LIBFLAGS        = -shared -fPIC
+
+CPPFLAGS        =
+CPP             = cpp -D__GNUC__
+
+SHELL           = /bin/sh 
+AR              = ar
+ARFLAGS         = rc 
+RANLIB          = ranlib
+RM              = rm -f
+LN              = ln -f -s 
+IDIRCMD         = $(TRK_DIR)/admin/mkinstalldirs
+MAKE_DEPS       = $(TRK_DIR)/admin/DotHDeps
+CONFLIBS        = -ldl -lm -lpthread
+
+LDLIBS          = -L$(TRK_LIB_DIR) -ltrk$(TRK_VERSION) \
+                  $(CONFLIBS)
+

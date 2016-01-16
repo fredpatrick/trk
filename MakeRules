@@ -1,0 +1,23 @@
+#
+# gmake variables common to all trk Makefile's
+#
+
+#****************************      Rules for building dependency include files
+# .o's on .h's
+
+#***************************** static pattern rule for building lib objs
+# NOTE: OBJ_PREFIX must be defined in Makefile
+#
+$(LIBOBJS) : $(OBJ_PREFIX)%.o  : %.cpp
+	$(CXX)  $(CXXFLAGS) $(INCFLAGS) $(CPPFLAGS) $< -c -o $@
+
+$(PRGOBJS) : %.o  : %.cpp
+	$(CXX)  $(CXXFLAGS) $(INCFLAGS) $(CPPFLAGS) $< -c -o $@
+#***************************** static pattern rule for building executables
+#  NOTE PRGS and THIS_DIR must be defined in Makefile
+#
+
+$(PRGS): %.exe : %.o 
+	@$(IDIRCMD) $(TRK_DIR)/bin
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(LDFLAGS) $(*F).o $(LDLIBS) -o $@
+	cd $(TRK_DIR)/bin; $(RM) $(*F); $(LN) $(THIS_DIR)/$@ $(*F)

@@ -1,0 +1,13 @@
+DEPLIST:= $(patsubst %.cpp, deps/%.d, $(ALLCC) )
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),code)
+include $(DEPLIST)
+endif
+endif
+
+deps/%.d: %.cpp
+	@$(IDIRCMD) ./deps
+	@$(SHELL) -ec '$(CPP) $(DEPFLAGS) $(INCFLAGS) -MM $(CPPFLAGS) $< \
+             | sed '\''s^\($*\)\.o[ :]*^$(OBJ_PREFIX)\1.o $@ : ^g'\'' > $@; \
+             [ -s $@ ] || rm -f $@' 
+
