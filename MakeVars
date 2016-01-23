@@ -4,7 +4,7 @@
 
 .SUFFIXES: .exe
 
-PRJDIR   = /home/fredpatrick/wrk/trk/v0.0
+PRJDIR   = /home/fredpatrick/wrk/trk
 TRK_DIR  = $(PRJDIR)
 
 TRK_LIB_DIR    = $(TRK_DIR)/lib

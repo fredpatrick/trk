@@ -61,7 +61,7 @@ GPIO(int number)
 trk::GPIO::
 ~GPIO()
 {
-//  unexport_gpio;
+  unexport_gpio();
 }
 
 int 

@@ -56,9 +56,9 @@ class GPIO {
     private:
 	int             number_;
 	string          name_; 
+    protected:
 	int         export_gpio();
 	int         unexport_gpio();
-    protected:
 	int         gpio_write(string path,
                                string filename,
                                string value);
