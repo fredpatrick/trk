@@ -1,0 +1,64 @@
+# This file maps the pins for the P8 and P9 headers that are used by the 
+# applications
+
+#header pins
+HDR P9-12   60  30  out yellow
+HDR P9-15   48  16  out violet
+HDR P8-12   44  12  out grey
+HDR P8-14   26  10  out green
+HDR P8-15   47  15  out yellow
+HDR P8-16   46  14  out orange
+HDR P8-17   27  11  out red
+HDR P8-18   65  35  out brown
+HDR P8-26   61  31   in brown
+HDR P8-27   86  56   in red
+HDR P8-28   88  58   in orange
+HDR P8-29   87  57   in yellow
+HDR P8-30   89  59   in green
+HDR P8-31   19  54   in blue
+HDR P8-32   11  55   in violet
+HDR P8-33   9   53   in grey
+HDR P8-34   81  51   in white
+HDR P8-35   8   52   in orange
+HDR P8-36   80  50   in red
+HDR P8-37   78  48   in brown
+HDR P8-38   79  49   in white
+HDR P8-39   76  46   in grey
+HDR P8-40   77  47   in violet
+HDR P8-41   74  44   in blue
+HDR P8-42   75  45   in green
+HDR P8-43   72  42   in yellow
+HDR P8-44   73  43   in orange
+HDR P8-45   70  40   in red
+HDR P8-46   71  41   in brown
+# demux address pins
+ADDR a0  P8-18
+ADDR a1  P8-17
+ADDR a2  P8-16
+ADDR a3  P8-15
+ADDR a4  P8-14
+# switch sensor pins
+SW  0   THRU    P8-46
+SW  0   OUT     P8-45
+SW  1   THRU    P8-44
+SW  1   OUT     P8-43
+SW  2   THRU    P8-42
+SW  2   OUT     P8-41
+SW  3   THRU    P8-40
+SW  3   OUT     P8-39
+SW  4   THRU    P8-38
+SW  4   OUT     P8-37
+SW  5   THRU    P8-36
+SW  5   OUT     P8-35
+# track sensor pins
+TRK O72A        P8-26
+TRK O72B        P8-27
+TRK O72C        P8-28
+TRK O72X        P8-29
+TRK O36Spiral   P8-30
+TRK O60A        P8-31
+TRK O60B        P8-32
+TRK O60C        P8-33
+TRK O60X        P8-34
+# pcb power pins
+PCB P9-15

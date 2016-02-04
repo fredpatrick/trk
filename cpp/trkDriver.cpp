@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 #include "GPIO.h"
-#include "PCPower.h"
+#include "EnablePCB.h"
 
 using namespace std;
 using namespace trk;
@@ -12,7 +12,7 @@ int main() {
 
     cout << "BeagleBoneBlack driver for exercising trk cicuits" <<endl;
 
-    PCPower* pcp = PCPower::instance();
+    EnablePCB* pcp = EnablePCB::instance();
     cout << "Power controler created " << endl;
 
 
