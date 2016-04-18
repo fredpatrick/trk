@@ -39,8 +39,9 @@ class GPIOConfig {
 
         ~GPIOConfig();
 
-        int gpio_num(const string& header_pin);;
+        int gpio_num(const string& header_pin);
         GPIO*  pcb_power_gpio();
+        GPIO* demux_address_gpio(const std::string& a);
 
         void    list_header_pins(std::ostream& ostrm);
         void    list_demux_address_pins(std::ostream& ostrm);

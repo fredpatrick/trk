@@ -9,6 +9,7 @@ all:  obj libs prg
 
 obj:
 	@echo **************Building .o files***************************
+	$(IDIRCMD) $(TRK_DIR)/lib/objs
 	$(MAKE) -C ./cpp obj || exit 1;
 
 libs: obj

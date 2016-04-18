@@ -14,7 +14,7 @@ DemuxAddress::instance()
 }
 
 trk::
-DemuxAddess::DemuxAddress()
+DemuxAddress::DemuxAddress()
 {
     GPIOConfig* gpio_config = GPIOConfig::instance();
     gpios_[0] = gpio_config->demux_address_gpio("a0");

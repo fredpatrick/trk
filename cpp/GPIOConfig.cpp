@@ -63,6 +63,15 @@ GPIOConfig::pcb_power_gpio()
     return new OutputGPIO(data.gpio_num);
 }
 
+trk::GPIO*
+trk::
+GPIOConfig::demux_address_gpio(const std::string& a)
+{
+    std::string pin_name = address_pins_[a];
+    GPIOData data = header_pins_[pin_name];
+    return new OutputGPIO(data.gpio_num);
+}
+
 void
 trk::
 GPIOConfig::list_header_pins(std::ostream& ostrm)
