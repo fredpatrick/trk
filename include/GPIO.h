@@ -36,7 +36,7 @@ using std::ofstream;
 
 namespace trk {
 
-typedef int (*CallbackType)(int, void*);
+class InputSensor;
 
 enum    GPIO_DIRECTION{ INPUT, OUTPUT };
 enum    GPIO_VALUE{ LOW=0, HIGH=1 };
@@ -80,7 +80,7 @@ class InputGPIO : public GPIO
         GPIO_EDGE   edge_type();
         void        debounce_time(int time){ debounce_time_ = time;}
         int         ev_count() { return ev_count_;}
-        int         wait_for_edge(CallbackType callback);
+        int         wait_for_edge(InputSensor* );
         int         wait_for_edge();
     private:
         static void* threaded_poll(void* attr);
@@ -88,7 +88,7 @@ class InputGPIO : public GPIO
         int          ev_count_; 
         pthread_t    thread_;
         bool         thread_running_;
-        CallbackType callback_function_;
+        InputSensor* input_sensor_;
 };
 
 class OutputGPIO : public GPIO

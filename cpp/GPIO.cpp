@@ -31,6 +31,8 @@
  */
 
 #include "GPIO.h"
+#include "InputSensor.h"
+
 #include<iostream>
 #include<fstream>
 #include<string>
@@ -149,7 +151,7 @@ InputGPIO(int number) : GPIO(number)
 
     debounce_time_ = 0;
     ev_count_ = 0;
-    callback_function_ = NULL;
+    input_sensor_ = NULL;
 }
 
 trk::InputGPIO::
@@ -191,10 +193,10 @@ trk::InputGPIO::edge_type()
 
 int 
 trk::InputGPIO::
-wait_for_edge(CallbackType callback)
+wait_for_edge(InputSensor* input_sensor)
 {
     thread_running_ = true;
-    callback_function_ = callback;
+    input_sensor_ = input_sensor;
     if(pthread_create(&thread_, NULL,             // created thread id
                       &threaded_poll,             // routine where thread starts
                       static_cast<void*>(this)))  // argument passed to start routine
@@ -211,7 +213,7 @@ trk::InputGPIO::
 threaded_poll(void *attr){
     InputGPIO *gpio = static_cast<InputGPIO*>(attr);
     while(gpio->thread_running_){
-	gpio->callback_function_(gpio->wait_for_edge(), gpio);
+	gpio->input_sensor_->operator()(gpio->wait_for_edge(), gpio);
 	usleep(gpio->debounce_time_ * 1000);
     }
     return 0;

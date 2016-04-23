@@ -64,12 +64,21 @@ GPIOConfig::pcb_power_gpio()
 }
 
 trk::GPIO*
-trk::
-GPIOConfig::demux_address_gpio(const std::string& a)
+trk::GPIOConfig::
+demux_address_gpio(const std::string& a)
 {
     std::string pin_name = address_pins_[a];
     GPIOData data = header_pins_[pin_name];
     return new OutputGPIO(data.gpio_num);
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+switch_gpio(const SWKey& key)
+{
+    string pin_name = switch_pins_[key];
+    GPIOData    d = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
 }
 
 void
