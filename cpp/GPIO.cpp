@@ -213,7 +213,7 @@ trk::InputGPIO::
 threaded_poll(void *attr){
     InputGPIO *gpio = static_cast<InputGPIO*>(attr);
     while(gpio->thread_running_){
-	gpio->input_sensor_->operator()(gpio->wait_for_edge(), gpio);
+	gpio->input_sensor_->event(gpio->wait_for_edge(), gpio);
 	usleep(gpio->debounce_time_ * 1000);
     }
     return 0;

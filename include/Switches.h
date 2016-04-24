@@ -7,7 +7,7 @@ namespace trk {
 
 class Switches {
     public:
-        Switches();
+        Switches(int sensor_fd);
         ~Switches();
 
         void list_state();

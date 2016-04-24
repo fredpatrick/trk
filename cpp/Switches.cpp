@@ -2,10 +2,10 @@
 #include <iostream>
 
 trk::Switches::
-Switches()
+Switches(int sensor_fd)
 {
     for ( int i = 0; i < 6; i++) {
-        switch_[i] = new Switch(i);
+        switch_[i] = new Switch(i, sensor_fd);
     }
 }
 

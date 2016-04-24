@@ -1,6 +1,7 @@
 #ifndef TRK_INPUTSENSOR_HH
 #define TRK_INPUTSENSOR_HH
 
+#include <sys/time.h>
 #include "GPIO.h"
 
 namespace trk {
@@ -11,7 +12,10 @@ class InputSensor
         InputSensor();
         ~InputSensor();
 
-        virtual void operator() (int ierr, InputGPIO* gpio) = 0;
+        virtual void    event(int ierr, InputGPIO* gpio) = 0;
+        virtual int     value() = 0;
+        virtual int     count() = 0;
+        virtual timeval timeofday() = 0;
 };
 
 }

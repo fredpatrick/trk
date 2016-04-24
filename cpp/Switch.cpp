@@ -5,7 +5,7 @@
 
 
 trk::
-Switch::Switch(int sw_num)
+Switch::Switch(int sw_num, int sensor_fd)
 {
     sw_num_ = sw_num;
     SWKey keythru = {sw_num, THRU};
@@ -13,13 +13,13 @@ Switch::Switch(int sw_num)
     SWKey keyout = {sw_num, OUT};
     gpio_out_   = gpio_config_->switch_gpio(keyout);
 
-    switch_sensor_thru_ = new SwitchSensor(this, THRU);
+    switch_sensor_thru_ = new SwitchSensor(this, THRU, sensor_fd);
     gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(switch_sensor_thru_);
     std::cout << "trkDriver, Poll started on 79, thru position" << endl;
 
-    switch_sensor_out_ = new SwitchSensor(this, OUT);
+    switch_sensor_out_ = new SwitchSensor(this, OUT, sensor_fd);
     gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
     gpio_out_->wait_for_edge(switch_sensor_thru_);
@@ -43,4 +43,11 @@ state()
     if     ( sw_thru == 1 && sw_out == 0 ) return THRU;
     else if ( sw_thru == 0 && sw_out == 1 ) return OUT;
     else return NOVAL;
+}
+
+int 
+trk::Switch::
+sw_num()
+{
+    return sw_num_;
 }

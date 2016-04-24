@@ -24,6 +24,13 @@ DemuxAddress::DemuxAddress()
     gpios_[4] = gpio_config->demux_address_gpio("a4");
 }
 
+trk::DemuxAddress::
+~DemuxAddress()
+{
+    delete gpios_;
+    instance_ = 0;
+}
+
 bool
 trk::
 DemuxAddress::set(int sw_num, SW_DIRECTION& sw_direc)
