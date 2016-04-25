@@ -1,6 +1,8 @@
 #ifndef TRK_GPIOCONFIG_HH
 #define TRK_GPIOCONFIG_HH
 
+#include <stdlib.h>
+#include <iostream>
 #include <fstream>
 #include <map>
 #include <string>
@@ -28,6 +30,7 @@ struct SWKey {
     {
         int a = num * 2 + static_cast<int>(swd);;
         int b = k2.num * 2 + static_cast<int>(k2.swd);;
+
         if ( a < b) return true;
         else        return false;
     }

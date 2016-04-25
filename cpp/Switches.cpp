@@ -4,6 +4,7 @@
 trk::Switches::
 Switches(int sensor_fd)
 {
+    std::cout << "Switches:ctor" << endl;
     for ( int i = 0; i < 6; i++) {
         switch_[i] = new Switch(i, sensor_fd);
     }
@@ -12,6 +13,7 @@ Switches(int sensor_fd)
 trk::Switches::
 ~Switches()
 {
+    std::cout << "Switches:dtor" << endl;
     delete switch_;
 }
 

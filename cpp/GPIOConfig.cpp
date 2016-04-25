@@ -68,7 +68,9 @@ trk::GPIOConfig::
 demux_address_gpio(const std::string& a)
 {
     std::string pin_name = address_pins_[a];
+    cout << "GPIOConfig::demux_address_gpio: pin_name = " << pin_name << endl;
     GPIOData data = header_pins_[pin_name];
+    cout << "GPIOConfig::demux_address_gpio: gpio_num = " << data.gpio_num << endl;
     return new OutputGPIO(data.gpio_num);
 }
 
@@ -77,6 +79,7 @@ trk::GPIOConfig::
 switch_gpio(const SWKey& key)
 {
     string pin_name = switch_pins_[key];
+    std::cout << "GPIOConfig::swithc_gpio: pin_name = " << pin_name << endl;
     GPIOData    d = header_pins_[pin_name];
     return new InputGPIO( d.gpio_num);
 }

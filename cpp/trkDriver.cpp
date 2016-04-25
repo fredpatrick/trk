@@ -20,11 +20,13 @@ int main() {
         perror("pipe");
         return false;
     }
+    std::cout << "trkDriver: got the pipe" << std::endl;
 
     Switches* switches = new Switches(sensor_fds[1]);
     std::cout << "trkDriver: Switch sensors created and activated" << endl;
 
     DemuxAddress* dmxaddr = DemuxAddress::instance();
+    std::cout << "trkDriver: demoxaddress gpios created" << std::endl;
 
 //  usleep(100000000);
 //  cout << "trkDriver, finished sleeping for 100 seconds" << endl;

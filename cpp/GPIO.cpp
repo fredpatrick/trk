@@ -148,6 +148,7 @@ trk::InputGPIO::
 InputGPIO(int number) : GPIO(number)
 {
     gpio_write(path_, "direction", "in");
+    std::cout << "InputGPIO.ctor: gpio direction set " << std::endl;
 
     debounce_time_ = 0;
     ev_count_ = 0;
