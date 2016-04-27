@@ -63,7 +63,8 @@ GPIO(int number)
 trk::GPIO::
 ~GPIO()
 {
-  unexport_gpio();
+    std::cout << "GPIO.dtor" << endl;
+    unexport_gpio();
 }
 
 int 
@@ -158,6 +159,7 @@ InputGPIO(int number) : GPIO(number)
 trk::InputGPIO::
 ~InputGPIO()
 {
+    std::cout << "InputGPIO.dtor" << endl;
 }
 
 int
@@ -279,6 +281,7 @@ OutputGPIO(int number) : GPIO(number)
 trk::OutputGPIO::
 ~OutputGPIO()
 {
+    std::cout << "OutputGPIO.dtor" << endl;
 }
 
 int 

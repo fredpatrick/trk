@@ -16,14 +16,14 @@ Switch::Switch(int sw_num, int sensor_fd)
     gpio_out_   = gpio_config_->switch_gpio(keyout);
     std:cout << "Switch.ctor: Got the gpios" << endl;
 
-    switch_sensor_thru_ = new SwitchSensor(this, THRU, sensor_fd);
+    switch_sensor_thru_ = new SwitchSensor(sw_num, THRU, sensor_fd);
     gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(switch_sensor_thru_);
     std::cout << "Switch.ctor, Poll started on " << gpio_thru_->number() << 
                                         " thru position" << endl;
 
-    switch_sensor_out_ = new SwitchSensor(this, OUT, sensor_fd);
+    switch_sensor_out_ = new SwitchSensor(sw_num, OUT, sensor_fd);
     gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
     gpio_out_->wait_for_edge(switch_sensor_thru_);
@@ -35,6 +35,8 @@ trk::Switch::
 ~Switch()
 {
     std::cout << "Switch.dtor" << std::endl;
+    delete gpio_thru_;
+    delete gpio_out_;
 }
 
 void

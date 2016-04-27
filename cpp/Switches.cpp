@@ -14,7 +14,9 @@ trk::Switches::
 ~Switches()
 {
     std::cout << "Switches:dtor" << endl;
-    delete switch_;
+    for ( int i = 0; i < 6; i++) {
+        delete switch_[i];
+    }
 }
 
 void

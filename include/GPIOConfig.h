@@ -1,3 +1,4 @@
+
 #ifndef TRK_GPIOCONFIG_HH
 #define TRK_GPIOCONFIG_HH
 
@@ -44,8 +45,10 @@ class GPIOConfig {
 
         int     gpio_num(const string& header_pin);
         GPIO*   pcb_power_gpio();
+        GPIO*   brk_event_gpio();
         GPIO*   demux_address_gpio(const std::string& a);
         InputGPIO* switch_gpio(const SWKey& key);
+        void       clear_gpios();
 
         void    list_header_pins(std::ostream& ostrm);
         void    list_demux_address_pins(std::ostream& ostrm);
@@ -56,11 +59,12 @@ class GPIOConfig {
         GPIOConfig(const string& cfgfil);
     private:
 
-        map<string, GPIOData>    header_pins_;
-        map<string, string>      address_pins_;
+        map<string, GPIOData>   header_pins_;
+        map<string, string>     address_pins_;
         map<SWKey, string>      switch_pins_;
-        map<string, string>      track_sensor_pins_;
-        string                   pcb_power_pin_;
+        map<string, string>     track_sensor_pins_;
+        string                  pcb_power_pin_;
+        string                  brk_event_pin_;
 
         static GPIOConfig* instance_;
 };

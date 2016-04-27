@@ -5,6 +5,7 @@
 #include "DemuxAddress.h"
 #include "Switches.h"
 #include "EnablePCB.h"
+#include "EnableBrkEvent.h"
 
 using namespace trk;
 
@@ -21,6 +22,8 @@ int main() {
         return false;
     }
     std::cout << "trkDriver: got the pipe" << std::endl;
+    
+    EnableBrkEvent* brk_event = new EnableBrkEvent(sensor_fds[1] );
 
     Switches* switches = new Switches(sensor_fds[1]);
     std::cout << "trkDriver: Switch sensors created and activated" << endl;
@@ -41,6 +44,11 @@ int main() {
 
     bool done = false;
     while ( !done ) {
+        std::cout << "trkDriver: Read on event pipe" << endl;
+        int sw_num;
+        read(sensor_fds[0], &sw_num, sizeof(int) );
+        std::cout << "trkDriver: Received event, sw_num = " << sw_num << std::endl;
+
         std::cout << "trkDriver: Enter switch index (-1 / 0:5) and switch direction " <<
                         "(THRU/OUT): ";
         int          switch_index;

@@ -62,3 +62,4 @@ TRK O60C        P8-33
 TRK O60X        P8-34
 # pcb power pins
 PCB P9-15
+BRKSIG P9-12

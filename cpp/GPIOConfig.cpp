@@ -50,6 +50,8 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
             track_sensor_pins_[zone_name] = pin_name;
         } else if ( tag == "PCB")  {
             from >> pcb_power_pin_;
+        } else if ( tag == "BRK_EVENT") {
+            from >> brk_event_pin_;
         }
     }
 }
@@ -61,6 +63,14 @@ GPIOConfig::pcb_power_gpio()
     GPIOData data;
     data = header_pins_[pcb_power_pin_];
     return new OutputGPIO(data.gpio_num);
+}
+
+trk::GPIO*
+trk::GPIOConfig::
+brk_event_gpio()
+{
+    GPIOData data = header_pins_[brk_event_pin_];
+    return new InputGPIO(data.gpio_num);
 }
 
 trk::GPIO*
@@ -82,6 +92,18 @@ switch_gpio(const SWKey& key)
     std::cout << "GPIOConfig::swithc_gpio: pin_name = " << pin_name << endl;
     GPIOData    d = header_pins_[pin_name];
     return new InputGPIO( d.gpio_num);
+}
+
+void
+trk::GPIOConfig::
+clear_gpios()
+{
+    typedef map<string, GPIOData>::const_iterator CI;
+    for (CI p = header_pins_.begin(); p!= header_pins_.end(); ++p) {
+        GPIOData data = p->second;
+        GPIO* gpio = new GPIO( data.gpio_num);
+        delete gpio;
+    }
 }
 
 void

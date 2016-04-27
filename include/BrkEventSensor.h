@@ -1,5 +1,5 @@
-#ifndef TRK_SWITCHSENSOR_HH
-#define TRK_SWITCHSENSOR_HH
+#ifndef TRK_BRKEVENTSENSOR_HH
+#define TRK_BRKEVENTSENSOR_HH
 
 #include "InputSensor.h"
 #include "GPIO.h"
@@ -7,13 +7,11 @@
 
 namespace trk {
 
-class Switch;
-
-class SwitchSensor : public InputSensor
+class BrkEventSensor : public InputSensor
 {
     public:
-        SwitchSensor( int sw_num,  const SW_DIRECTION& sw_direc, int sensor_fd);
-        ~SwitchSensor();
+        BrkEventSensor( int sensor_fd);
+        ~BrkEventSensor();
 
         void event (int ierr, InputGPIO* gpio);
         int     value();
@@ -21,8 +19,6 @@ class SwitchSensor : public InputSensor
         timeval timeofday();
 
     private:
-        SW_DIRECTION    sw_direc_;
-        int             sw_num_;
         int             sensor_fd_;
 
         int             value_;
