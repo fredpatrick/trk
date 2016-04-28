@@ -4,6 +4,7 @@
 #header pins
 HDR P9-12   60  30  out yellow
 HDR P9-15   48  16  out violet
+HDR P9-23   49  17   in yellow
 HDR P8-12   44  12  out grey
 HDR P8-14   26  10  out green
 HDR P8-15   47  15  out yellow
@@ -62,4 +63,4 @@ TRK O60C        P8-33
 TRK O60X        P8-34
 # pcb power pins
 PCB P9-15
-BRKSIG P9-12
+BRKSIG P9-23

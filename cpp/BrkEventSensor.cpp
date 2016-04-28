@@ -3,19 +3,21 @@
 #include <unistd.h>
 
 #include "BrkEventSensor.h"
+#include "JobClock.h"
 
 trk::BrkEventSensor::
 BrkEventSensor( int sensor_fd)
 {
+    job_clock_  = JobClock::instance();
     sensor_fd_  = sensor_fd;
-    std::cout << "BrkEventSensor.ctor:" ;
+//  std::cout << "BrkEventSensor.ctor:" ;
 
 }
 
 trk::BrkEventSensor::
 ~BrkEventSensor()
 {
-    std::cout << "BrkEventSensor.dtor" << std::endl;
+//  std::cout << "BrkEventSensor.dtor" << std::endl;
 }
 
 void
@@ -24,14 +26,17 @@ event(int ierr, InputGPIO* gpio)
 {
     value_ = (int)gpio->value();
     count_ = gpio->ev_count();
-    gettimeofday(&time_of_day_, NULL);
-    std::cout << "BrkEventSensor.event: value = " << value_ <<
-            " count = " << count_ << 
-           ", time = " << time_of_day_.tv_sec << "." << time_of_day_.tv_usec << endl;
+    tm_event_ = job_clock_->job_time();
+    std::cout.width(40);
+    std::cout << "* ";
+    std::cout << "BrkEventSensor.event:" << " - " << tm_event_ << std::endl;
+    std::cout.width(40);
+    std::cout << "* ";
+    std::cout << "BrkEventSensor.event: value = " << value_ << 
+            " count = " << count_ << std::endl;
 
     string tag = "BRK";
-    int ier = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
-    std::cout << "BrkEventSensor: tag = " << tag << " written to sensor_fd" << std::endl;
+    int ns = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
 }
 
 int
@@ -48,9 +53,9 @@ count()
     return count_;
 }
 
-timeval
+double
 trk::BrkEventSensor::
 timeofday()
 {
-    return time_of_day_;
+    return tm_event_;
 }

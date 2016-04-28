@@ -15,7 +15,7 @@ class EnableBrkEvent {
         ~EnableBrkEvent();
 
     private:
-        GPIO*                 gpio_brk_;
+        InputGPIO*            gpio_brk_;
         BrkEventSensor*       brk_event_sensor_;
 };
 

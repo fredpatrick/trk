@@ -7,6 +7,8 @@
 
 namespace trk {
 
+class JobClock;
+
 class BrkEventSensor : public InputSensor
 {
     public:
@@ -16,14 +18,16 @@ class BrkEventSensor : public InputSensor
         void event (int ierr, InputGPIO* gpio);
         int     value();
         int     count();
-        timeval timeofday();
+        double  timeofday();
 
     private:
         int             sensor_fd_;
 
         int             value_;
         int             count_;
-        timeval         time_of_day_;
+        double          tm_event_;
+
+        JobClock*       job_clock_;
 };
 
 }

@@ -15,7 +15,7 @@ class InputSensor
         virtual void    event(int ierr, InputGPIO* gpio) = 0;
         virtual int     value() = 0;
         virtual int     count() = 0;
-        virtual timeval timeofday() = 0;
+        virtual double  timeofday() = 0;
 };
 
 }

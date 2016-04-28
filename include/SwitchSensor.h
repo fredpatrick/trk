@@ -7,7 +7,7 @@
 
 namespace trk {
 
-class Switch;
+class JobClock;
 
 class SwitchSensor : public InputSensor
 {
@@ -18,7 +18,7 @@ class SwitchSensor : public InputSensor
         void event (int ierr, InputGPIO* gpio);
         int     value();
         int     count();
-        timeval timeofday();
+        double  timeofday();
 
     private:
         SW_DIRECTION    sw_direc_;
@@ -27,7 +27,8 @@ class SwitchSensor : public InputSensor
 
         int             value_;
         int             count_;
-        timeval         time_of_day_;
+        double          tm_event_;
+        JobClock*       job_clock_;
 };
 
 }

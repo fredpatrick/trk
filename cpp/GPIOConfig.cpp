@@ -22,7 +22,7 @@ trk::
 GPIOConfig::GPIOConfig(const string& cfgfil)
 {
     ifstream from(cfgfil.c_str() );
-    cout << "GPIOConfig::GPIOConfig " << cfgfil << " opened" << endl;
+//  cout << "GPIOConfig::GPIOConfig " << cfgfil << " opened" << endl;
     string      pin_name;
     GPIOData    data;
     char        cline[120];
@@ -50,7 +50,7 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
             track_sensor_pins_[zone_name] = pin_name;
         } else if ( tag == "PCB")  {
             from >> pcb_power_pin_;
-        } else if ( tag == "BRK_EVENT") {
+        } else if ( tag == "BRKSIG") {
             from >> brk_event_pin_;
         }
     }
@@ -65,7 +65,7 @@ GPIOConfig::pcb_power_gpio()
     return new OutputGPIO(data.gpio_num);
 }
 
-trk::GPIO*
+trk::InputGPIO*
 trk::GPIOConfig::
 brk_event_gpio()
 {
@@ -78,9 +78,7 @@ trk::GPIOConfig::
 demux_address_gpio(const std::string& a)
 {
     std::string pin_name = address_pins_[a];
-    cout << "GPIOConfig::demux_address_gpio: pin_name = " << pin_name << endl;
     GPIOData data = header_pins_[pin_name];
-    cout << "GPIOConfig::demux_address_gpio: gpio_num = " << data.gpio_num << endl;
     return new OutputGPIO(data.gpio_num);
 }
 
@@ -89,7 +87,6 @@ trk::GPIOConfig::
 switch_gpio(const SWKey& key)
 {
     string pin_name = switch_pins_[key];
-    std::cout << "GPIOConfig::swithc_gpio: pin_name = " << pin_name << endl;
     GPIOData    d = header_pins_[pin_name];
     return new InputGPIO( d.gpio_num);
 }

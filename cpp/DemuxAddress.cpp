@@ -24,17 +24,11 @@ DemuxAddress::DemuxAddress()
     gpios_[2] = gpio_config->demux_address_gpio("a2");
     gpios_[3] = gpio_config->demux_address_gpio("a3");
     gpios_[4] = gpio_config->demux_address_gpio("a4");
-
-    for ( int i = 0; i < 5; i++ ) {
-        std::cout << "DemuxADDRESS:ctor: n = " << gpios_[i]->number() << std::endl;
-    }
 }
 
 trk::DemuxAddress::
 ~DemuxAddress()
 {
-    std::cout << "DemuxAddress.dtor" << endl;
-
     for ( int i = 0; i < 5; i++) {
         delete gpios_[i];
     }

@@ -43,10 +43,10 @@ class GPIOConfig {
 
         ~GPIOConfig();
 
-        int     gpio_num(const string& header_pin);
-        GPIO*   pcb_power_gpio();
-        GPIO*   brk_event_gpio();
-        GPIO*   demux_address_gpio(const std::string& a);
+        int        gpio_num(const string& header_pin);
+        GPIO*      pcb_power_gpio();
+        GPIO*      demux_address_gpio(const std::string& a);
+        InputGPIO* brk_event_gpio();
         InputGPIO* switch_gpio(const SWKey& key);
         void       clear_gpios();
 
