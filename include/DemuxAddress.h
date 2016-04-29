@@ -15,7 +15,7 @@ class DemuxAddress {
 
         ~DemuxAddress();
 
-        bool set (int sw_num, SW_DIRECTION& sw_direc);
+        bool set (int addr);
 
     protected:
         DemuxAddress();

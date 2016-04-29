@@ -2,7 +2,6 @@
 #include <iostream>
 #include <unistd.h>
 #include "GPIO.h"
-#include "DemuxAddress.h"
 #include "JobClock.h"
 #include "Switches.h"
 #include "EnablePCB.h"
@@ -20,21 +19,6 @@ int main() {
     EnablePCB* pcp = EnablePCB::instance();
     std::cout << "Power controler created " << std::endl;
 
-    int sensor_fds[2];
-    if ( pipe( sensor_fds) == -1 ) {
-        perror("pipe");
-        return false;
-    }
-    std::cout << "trkDriver: got the pipe" << std::endl;
-    
-    EnableBrkEvent* brk_event = new EnableBrkEvent(sensor_fds[1] );
-
-    Switches* switches = new Switches(sensor_fds[1]);
-    std::cout << "trkDriver: Switch sensors created and activated" << endl;
-
-    DemuxAddress* dmxaddr = DemuxAddress::instance();
-    std::cout << "trkDriver: demoxaddress gpios created" << std::endl;
-
     bool done;
     std::string yesno = "";
     while ( yesno == "" ) {
@@ -47,6 +31,20 @@ int main() {
             done = false;
         }
     }
+    Switches* switches = new Switches();
+    std::cout << "trkDriver: Set initial switch positions" << std::endl;
+    switches->manual_set();
+
+    int sensor_fds[2];
+    if ( pipe( sensor_fds) == -1 ) {
+        perror("pipe");
+        return false;
+    }
+    std::cout << "trkDriver: got the pipe" << std::endl;
+    
+    EnableBrkEvent* brk_event = new EnableBrkEvent(sensor_fds[1] );
+    switches->enable_sensors(sensor_fds[1] );
+    std::cout << "trkDriver: Switch sensors created and activated" << endl;
 
     while ( !done ) {
         std::cout << "trkDriver: Read on event pipe" << endl;
@@ -72,7 +70,7 @@ int main() {
                     done = true;
                 } else {
                     cin >> sw_direc;
-                    dmxaddr->set(switch_index, sw_direc);
+                    switches->set_direction(switch_index, sw_direc);
                     done = false;
                 }
             } else {
@@ -84,7 +82,6 @@ int main() {
     pcp->off();
     delete brk_event;
     delete switches;
-    delete dmxaddr;
     delete pcp;
     return 0;
 }

@@ -7,8 +7,12 @@ namespace trk {
 
 class Switches {
     public:
-        Switches(int sensor_fd);
+        Switches();
         ~Switches();
+
+        bool enable_sensors(int sensor_fd);
+        void set_direction(int sw_num, const SW_DIRECTION& sw_direc);
+        void manual_set();
 
         void list_state();
     private:

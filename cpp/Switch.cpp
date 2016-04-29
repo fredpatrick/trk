@@ -1,12 +1,21 @@
 #include "Switch.h"
 #include "SwitchSensor.h"
+#include "DemuxAddress.h"
 #include "GPIO.h"
 #include <iostream>
 
 
 trk::
-Switch::Switch(int sw_num, int sensor_fd)
+Switch::Switch(int sw_num)
 {
+    if ( sw_num < 0 || sw_num > 5) {
+        std::cout << "Switch.ctor, WARNING sw_num = " << sw_num << 
+                                         " OUT OF RANGE" << std::endl;
+        //throw ....
+    }
+
+    demux_address_ = DemuxAddress::instance();
+
     gpio_config_ = GPIOConfig::instance();
 //  std::cout << "Switch.ctor" << std::endl;
     sw_num_ = sw_num;
@@ -15,20 +24,6 @@ Switch::Switch(int sw_num, int sensor_fd)
     SWKey keyout = {sw_num, OUT};
     gpio_out_   = gpio_config_->switch_gpio(keyout);
 //  std:cout << "Switch.ctor: Got the gpios" << endl;
-
-    switch_sensor_thru_ = new SwitchSensor(sw_num, THRU, sensor_fd);
-    gpio_thru_->edge_type(BOTH);
-    gpio_thru_->debounce_time(200);
-    gpio_thru_->wait_for_edge(switch_sensor_thru_);
-//  std::cout << "Switch.ctor, Poll started on " << gpio_thru_->number() << 
-//                                      " thru position" << endl;
-
-    switch_sensor_out_ = new SwitchSensor(sw_num, OUT, sensor_fd);
-    gpio_out_->edge_type(BOTH);
-    gpio_out_->debounce_time(200);
-    gpio_out_->wait_for_edge(switch_sensor_thru_);
-//  std::cout << "Switch.ctor, Poll started on " << gpio_out_->number() << 
-//                                      " out position" << endl;
 }
 
 trk::Switch::
@@ -37,6 +32,37 @@ trk::Switch::
 //  std::cout << "Switch.dtor" << std::endl;
     delete gpio_thru_;
     delete gpio_out_;
+}
+
+bool
+trk::Switch::
+enable_sensors(int sensor_fd)
+{
+
+    switch_sensor_thru_ = new SwitchSensor(sw_num_, THRU, sensor_fd);
+    gpio_thru_->edge_type(BOTH);
+    gpio_thru_->debounce_time(200);
+    gpio_thru_->wait_for_edge(switch_sensor_thru_);
+//  std::cout << "Switch.ctor, Poll started on " << gpio_thru_->number() << 
+//                                      " thru position" << endl;
+
+    switch_sensor_out_ = new SwitchSensor(sw_num_, OUT, sensor_fd);
+    gpio_out_->edge_type(BOTH);
+    gpio_out_->debounce_time(200);
+    gpio_out_->wait_for_edge(switch_sensor_thru_);
+//  std::cout << "Switch.ctor, Poll started on " << gpio_out_->number() << 
+//                                      " out position" << endl;
+    return true;
+}
+
+bool
+trk::Switch::
+set_direction(const SW_DIRECTION& sw_direc)
+{
+    sw_direc_ = sw_direc;
+    int addr = sw_num_ * 2 + sw_direc_;
+    demux_address_->set(addr);
+    return true;
 }
 
 void

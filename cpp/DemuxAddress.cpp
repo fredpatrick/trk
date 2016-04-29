@@ -37,14 +37,9 @@ trk::DemuxAddress::
 
 bool
 trk::
-DemuxAddress::set(int sw_num, SW_DIRECTION& sw_direc)
+DemuxAddress::set(int addr)
 {
-    std::cout << "DemuxAddress.set: sw_num = " << sw_num << 
-                                " sw_direc = " << sw_direc << std::endl;
-    if ( sw_num < 0 || sw_num > 5|| sw_direc == NOVAL) return false;
-
-    int line_index = sw_num * 2 + sw_direc;
-    std::bitset<8 * sizeof(int)> b = line_index;
+    std::bitset<8 * sizeof(int)> b = addr;
     gpios_[4]->value(HIGH);
     gpios_[0]->value( GPIO_VALUE( (int)b[0] ));
     gpios_[1]->value( GPIO_VALUE( (int)b[1] ));
