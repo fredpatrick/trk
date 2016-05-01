@@ -155,42 +155,10 @@ GPIOConfig::list_pcb_power_pin(std::ostream& ostrm)
     ostrm << pcb_power_pin_ << endl;
 }
 
-std::istream& 
-operator>>( std::istream& is, trk::SW_DIRECTION& idirec)
-{
-    std::string tmp;
-    if ( is >> tmp ) {
-        if ( tmp == "THRU") {
-            idirec = trk::THRU;
-        } else if ( tmp == "OUT" ) {
-            idirec = trk::OUT;
-        } else {
-            idirec = trk::NOVAL;
-        }
-    }
-    return is;
-}
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
-{
-    if ( idirec == trk::THRU )      ostrm << "THRU";
-    else if ( idirec == trk::OUT )   ostrm << "OUT";
-    else if ( idirec == trk::NOVAL)  ostrm << "NOVAL";
-    return ostrm;
-}
-
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::GPIOData& data)
 {
     ostrm << data.gpio_num << '\t' << data.gpio_pin << '\t' << 
                                      data.direction << '\t' << data.color;
-    return ostrm;
-}
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::SWKey& key)
-{
-    ostrm << "trk::SWKey: " << key.num << '\t' << key.swd;
     return ostrm;
 }

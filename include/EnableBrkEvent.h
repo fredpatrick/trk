@@ -11,7 +11,7 @@ class BrkEventSensor;
 class EnableBrkEvent {
 
     public:
-        EnableBrkEvent(int sensor_fd );
+        EnableBrkEvent(int sensor_fd , int& n_event);
         ~EnableBrkEvent();
 
     private:

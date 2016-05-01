@@ -12,7 +12,7 @@ class JobClock;
 class BrkEventSensor : public InputSensor
 {
     public:
-        BrkEventSensor( int sensor_fd);
+        BrkEventSensor( int sensor_fd, int& n_event);
         ~BrkEventSensor();
 
         void event (int ierr, InputGPIO* gpio);
@@ -22,6 +22,7 @@ class BrkEventSensor : public InputSensor
 
     private:
         int             sensor_fd_;
+        int&            n_event_;
 
         int             value_;
         int             count_;

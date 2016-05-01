@@ -7,34 +7,19 @@
 #include <fstream>
 #include <map>
 #include <string>
+
+#include "trkutl.h"
 #include "GPIO.h"
 
 using namespace std;
 
 namespace trk {
 
-enum SW_DIRECTION {THRU, OUT, NOVAL };
-
 struct GPIOData {
     int     gpio_num;
     int     gpio_pin;
     string  direction;
     string  color;
-};
-
-struct SWKey {
-    int             num; 
-    SW_DIRECTION    swd;
-
-    bool
-    operator< (const SWKey& k2) const
-    {
-        int a = num * 2 + static_cast<int>(swd);;
-        int b = k2.num * 2 + static_cast<int>(k2.swd);;
-
-        if ( a < b) return true;
-        else        return false;
-    }
 };
 
 class GPIOConfig {
@@ -72,16 +57,7 @@ class GPIOConfig {
 
 }
 
-std::istream& 
-operator>>( std::istream& is, trk::SW_DIRECTION& idirec);
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec);
-
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::GPIOData& data);
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::SWKey& kwy);
 
 #endif

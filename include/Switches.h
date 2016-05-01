@@ -1,6 +1,7 @@
 #ifndef TRK_SWITCHES_HH
 #define TRK_SWITCHES_HH
 
+#include "trkutl.h"
 #include "Switch.h"
 
 namespace trk {
@@ -10,8 +11,8 @@ class Switches {
         Switches();
         ~Switches();
 
-        bool enable_sensors(int sensor_fd);
-        void set_direction(int sw_num, const SW_DIRECTION& sw_direc);
+        bool enable_sensors(int sensor_fd, int& n_event);
+        void set_direction(const SWKey& key);
         void manual_set();
 
         void list_state();

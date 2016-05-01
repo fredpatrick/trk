@@ -1,10 +1,12 @@
 #ifndef TRK_SWITCH_HH
 #define TRK_SWITCH_HH
 
-#include "GPIOConfig.h"
+#include "trkutl.h"
 
 namespace trk {
 
+class InputGPIO;
+class GPIOConfig;
 class SwitchSensor;
 class DemuxAddress;
 
@@ -13,7 +15,7 @@ class Switch {
         Switch(int sw_num);
         ~Switch();
 
-        bool            enable_sensors(int sensor_fd);
+        bool            enable_sensors(int sensor_fd, int& n_event);
         bool            set_direction(const SW_DIRECTION& sw_direc);
         void sensor_event(int value, int cout, const SW_DIRECTION& sw_direc);
         SW_DIRECTION    state();

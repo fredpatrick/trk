@@ -3,7 +3,7 @@
 
 #include "InputSensor.h"
 #include "GPIO.h"
-#include "GPIOConfig.h"
+#include "trkutl.h"
 
 namespace trk {
 
@@ -12,18 +12,21 @@ class JobClock;
 class SwitchSensor : public InputSensor
 {
     public:
-        SwitchSensor( int sw_num,  const SW_DIRECTION& sw_direc, int sensor_fd);
+        SwitchSensor( int sw_num,  const SW_DIRECTION& sw_direc, int sensor_fd, int& n_nevent);
         ~SwitchSensor();
 
         void event (int ierr, InputGPIO* gpio);
         int     value();
         int     count();
         double  timeofday();
+        void    ignore_event(bool s);
 
     private:
         SW_DIRECTION    sw_direc_;
         int             sw_num_;
         int             sensor_fd_;
+        int&            n_event_;
+        bool            ignore_event_;
 
         int             value_;
         int             count_;

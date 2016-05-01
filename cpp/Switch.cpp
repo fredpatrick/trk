@@ -13,6 +13,8 @@ Switch::Switch(int sw_num)
                                          " OUT OF RANGE" << std::endl;
         //throw ....
     }
+    switch_sensor_thru_ = 0;
+    switch_sensor_out_  = 0;
 
     demux_address_ = DemuxAddress::instance();
 
@@ -30,26 +32,28 @@ trk::Switch::
 ~Switch()
 {
 //  std::cout << "Switch.dtor" << std::endl;
+    if ( switch_sensor_thru_) switch_sensor_thru_->ignore_event(true);
+    if ( switch_sensor_out_ ) switch_sensor_out_->ignore_event(true);
     delete gpio_thru_;
     delete gpio_out_;
 }
 
 bool
 trk::Switch::
-enable_sensors(int sensor_fd)
+enable_sensors(int sensor_fd, int& n_event)
 {
 
-    switch_sensor_thru_ = new SwitchSensor(sw_num_, THRU, sensor_fd);
+    switch_sensor_thru_ = new SwitchSensor(sw_num_, THRU, sensor_fd, n_event);
     gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(switch_sensor_thru_);
 //  std::cout << "Switch.ctor, Poll started on " << gpio_thru_->number() << 
 //                                      " thru position" << endl;
 
-    switch_sensor_out_ = new SwitchSensor(sw_num_, OUT, sensor_fd);
+    switch_sensor_out_ = new SwitchSensor(sw_num_, OUT, sensor_fd, n_event);
     gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
-    gpio_out_->wait_for_edge(switch_sensor_thru_);
+    gpio_out_->wait_for_edge(switch_sensor_out_);
 //  std::cout << "Switch.ctor, Poll started on " << gpio_out_->number() << 
 //                                      " out position" << endl;
     return true;
