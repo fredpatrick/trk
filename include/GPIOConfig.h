@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <vector>
 #include <string>
 
 #include "trkutl.h"
@@ -28,12 +29,14 @@ class GPIOConfig {
 
         ~GPIOConfig();
 
-        int        gpio_num(const string& header_pin);
-        GPIO*      pcb_power_gpio();
-        GPIO*      demux_address_gpio(const std::string& a);
-        InputGPIO* brk_event_gpio();
-        InputGPIO* switch_gpio(const SWKey& key);
-        void       clear_gpios();
+        int         gpio_num(const string& header_pin);
+        GPIO*       pcb_power_gpio();
+        GPIO*       demux_address_gpio(const std::string& a);
+        InputGPIO*  brk_event_gpio();
+        InputGPIO*  switch_gpio(const SWKey& key);
+        InputGPIO*  track_gpio(const std::string& zone_name);
+        void        clear_gpios();
+        std::vector<string> zone_names();
 
         void    list_header_pins(std::ostream& ostrm);
         void    list_demux_address_pins(std::ostream& ostrm);

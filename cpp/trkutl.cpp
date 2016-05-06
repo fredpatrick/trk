@@ -27,6 +27,13 @@ trk::get_switch ()
     while ( !got_ans ) {
         std::cout << "get_switch:enter sw_num (-1:5), sw_direc (THRU/OUT): " << std::endl;
         std::cin >> key.num;
+        if ( std::cin.fail() ) {
+            std::cout << "Bad read on sw_num" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(100, '\n');
+            continue;
+        }
+        std::cout << key.num << std::endl;
         if ( key.num >= -1 && key.num <= 5 ) {
             if ( key.num == -1 ) {
                 got_ans = true;

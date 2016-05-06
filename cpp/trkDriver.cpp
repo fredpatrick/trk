@@ -8,6 +8,7 @@
 #include "DemuxAddress.h"
 #include "EnablePCB.h"
 #include "EnableBrkEvent.h"
+#include "Zones.h"
 
 using namespace trk;
 
@@ -54,6 +55,7 @@ int main() {
         char* ctag = new char[4];
         read(sensor_fds[0], ctag, 4); 
         std::string tag = ctag;
+        std::string zone_name;
         while  ( n_event > 0 ) {
             std::cout << "trkDriver: event " << tag << ", n_event=" <<
                                 n_event << ", " << *job_clock << std::endl;
@@ -66,6 +68,15 @@ int main() {
                 read(sensor_fds[0], &sw_direc, sizeof(int) );
                 std::cout << "trkDriver:read sensor_fd,sw = {" << sw_num << ", " << 
                                                   sw_direc << "}" << std::endl;
+            } else if ( tag == "TRK" ) {
+                int nc;
+                read(sensor_fds[0], &nc, sizeof(int) );
+                char* zn = new char[nc];
+                read(sensor_fds[0], zn, nc);
+                int v;
+                read(sensor_fds[0], &v, sizeof(int) );
+                zone_name = zn;
+                std::cout << "trkDriver:read sensor_fd, " << zone_name << " = " << v << endl;
             }
             n_event--;
             if ( n_event > 0 ) {

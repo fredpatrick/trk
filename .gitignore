@@ -5,6 +5,7 @@ lib/objs/*.o
 cpp/*.exe
 cpp/*.swp
 cpp/tmp
+include/tmp
 bin/trkClear
 bin/trkDriver
 bin/listConfig

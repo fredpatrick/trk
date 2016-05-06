@@ -86,9 +86,30 @@ trk::InputGPIO*
 trk::GPIOConfig::
 switch_gpio(const SWKey& key)
 {
-    string pin_name = switch_pins_[key];
+    std::string pin_name = switch_pins_[key];
     GPIOData    d = header_pins_[pin_name];
     return new InputGPIO( d.gpio_num);
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+track_gpio(const std::string& zone_name)
+{
+    std::string pin_name = track_sensor_pins_[zone_name];
+    GPIOData    d = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
+}
+
+std::vector<string>
+trk::GPIOConfig::
+zone_names()
+{
+    std::vector<string> zns;
+    typedef std::map<std::string, std::string>::const_iterator CI;
+    for ( CI p = track_sensor_pins_.begin(); p != track_sensor_pins_.end(); p++) {
+        zns.push_back( p->first);
+    }
+    return zns;
 }
 
 void
