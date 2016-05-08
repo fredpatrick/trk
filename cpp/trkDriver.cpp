@@ -49,6 +49,10 @@ int main() {
     switches->enable_sensors(sensor_fds[1], n_event );
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
+    Zones* zones = new Zones();
+    zones->enable_sensors(sensor_fds[1], n_event);
+    std::cout << "trkDriver: Track  sensors created and activated" << std::endl;
+
     bool done = false;
     while ( !done ) {
         std::cout << "trkDriver: Read on event pipe, n_event = " << n_event << std::endl;
@@ -59,6 +63,7 @@ int main() {
         while  ( n_event > 0 ) {
             std::cout << "trkDriver: event " << tag << ", n_event=" <<
                                 n_event << ", " << *job_clock << std::endl;
+            zones->scan();
             if ( tag == "BRK" ) {
                 done = true;
             } else if ( tag == "SW " ) {
@@ -85,20 +90,20 @@ int main() {
                 read(sensor_fds[0], ctag, 4);
             }
         }
-        if ( !done) {
-            yesno = get_yesno( "trkDriver flip(_switches?");
-            if ( yesno == "yes" ) {
-                bool flip_sw = true;
-                while ( flip_sw ) {
-                    SWKey key = get_switch();
-                    if ( key.num != -1) {
-                        switches->set_direction(key);
-                    } else {
-                        flip_sw = false;
-                    }
-                }
-            } 
-        }
+//      if ( !done) {
+//          yesno = get_yesno( "trkDriver flip(_switches?");
+//          if ( yesno == "yes" ) {
+//              bool flip_sw = true;
+//              while ( flip_sw ) {
+//                  SWKey key = get_switch();
+//                  if ( key.num != -1) {
+//                      switches->set_direction(key);
+//                  } else {
+//                      flip_sw = false;
+//                  }
+//              }
+//          }
+//      }
     }
 
     delete brk_event;

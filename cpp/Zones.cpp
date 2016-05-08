@@ -35,7 +35,11 @@ enable_sensors(int sensor_fd, int& n_event)
 
 bool
 trk::Zones::
-blockit(const std::string& zone_name)
-{
-    return zones_[ zone_name]->blockit();
+scan(){
+    std::cout << "Zones.scan ";
+    for ( int i = 0; i < 6; i++) {
+        int v = zones_[ zone_names_[i] ]->state();
+        std::cout << zone_names_[i] << " " << v << " ";
+    }
+    std::cout << std::endl;
 }

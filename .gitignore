@@ -8,4 +8,6 @@ cpp/tmp
 include/tmp
 bin/trkClear
 bin/trkDriver
+bin/trkSwitcher
+bin/trkBlocker
 bin/listConfig

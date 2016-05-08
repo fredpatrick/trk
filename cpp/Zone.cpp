@@ -1,7 +1,7 @@
 #include "Zone.h"
 #include "TrackSensor.h"
-#include "DemuxAddress.h"
 #include "GPIO.h"
+#include "GPIOConfig.h"
 #include <iostream>
 
 
@@ -10,20 +10,6 @@ Zone::Zone(const std::string& zone_name)
 {
     track_sensor_ = 0;
 
-    demux_address_ = DemuxAddress::instance();
-    blk_base_addr_ = 12;
-    blk_index_     = -1;
-    if ( zone_name == "O60B" ) {
-        blk_index_ = 1;
-    } else if ( zone_name == "O72B" ) {
-        blk_index_ = 2;
-    }
-    if ( blk_index_ != -1 ) {
-        int clr_addr   = blk_base_addr_;
-        demux_address_->set(clr_addr);
-    }
-
-    gpio_config_ = GPIOConfig::instance();
 //  std::cout << "Zone.ctor" << std::endl;
     zone_name_ = zone_name;
     track_gpio_  = gpio_config_->track_gpio(zone_name_);
@@ -51,14 +37,6 @@ enable_sensor(int sensor_fd, int& n_event)
 //  std::cout << "Zone.ctor, Poll started on Zone " << zone_name_ << endl;
 
     return true;
-}
-
-bool
-trk::Zone::
-blockit()
-{
-    int blk_addr = blk_base_addr_ + blk_index_;
-    demux_address_->set(blk_addr);
 }
 
 bool

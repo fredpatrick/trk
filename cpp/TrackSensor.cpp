@@ -43,7 +43,9 @@ event(int ierr, InputGPIO* gpio)
     std::cout.width(50);
     std::cout << "* ";
     std::cout << "TrackSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
-
+    std::cout.width(50);
+    std::cout << "* " << "TrackSensor.event, " << zone_name_ << 
+                                  ", value = " << value_ << std::endl; 
     string tag = "TRK";
     int ns = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
     int nc = zone_name_.length() + 1;

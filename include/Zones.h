@@ -15,7 +15,7 @@ class Zones {
         ~Zones();
 
         bool enable_sensors(int sensor_fd, int& n_event);
-        bool blockit( const std::string& zone_name);
+        bool scan();
 
     private:
         std::map<std::string,Zone*> zones_;

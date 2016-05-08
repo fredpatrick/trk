@@ -10,7 +10,6 @@ namespace trk {
 class InputGPIO;
 class GPIOConfig;
 class TrackSensor;
-class DemuxAddress;
 
 class Zone {
     public:
@@ -18,7 +17,6 @@ class Zone {
         ~Zone();
 
         bool            enable_sensor(int sensor_fd, int& n_event);
-        bool            blockit();
         std::string     zone_name();
         bool            state();
     private:
@@ -26,10 +24,6 @@ class Zone {
         std::string     zone_name_;
         InputGPIO*      track_gpio_;
         TrackSensor*    track_sensor_;
-
-        int             blk_base_addr_;
-        int             blk_index_;
-        DemuxAddress*   demux_address_;
 };
 
 }

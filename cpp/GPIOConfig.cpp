@@ -52,6 +52,11 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
             from >> pcb_power_pin_;
         } else if ( tag == "BRKSIG") {
             from >> brk_event_pin_;
+        } else if ( tag == "BLK" ) {
+            string  blk_name;
+            int     blk_index;
+            from >> blk_name >> blk_index;
+            blocker_indicies_[blk_name] = blk_index;
         }
     }
 }
@@ -122,6 +127,32 @@ clear_gpios()
         GPIO* gpio = new GPIO( data.gpio_num);
         delete gpio;
     }
+}
+
+int
+trk::GPIOConfig::
+blk_base_addr()
+{
+    return blocker_indicies_["Base"];
+}
+
+int 
+trk::GPIOConfig::
+blk_index(const std::string& blk_name)
+{
+    return blocker_indicies_[blk_name];
+}
+
+std::vector<string>
+trk::GPIOConfig::
+blk_names()
+{
+    std::vector<string> bns;
+    typedef std::map<std::string, int>::const_iterator CI;
+    for ( CI p = blocker_indicies_.begin(); p != blocker_indicies_.end(); p++) {
+        bns.push_back( p->first);
+    }
+    return bns;
 }
 
 void
