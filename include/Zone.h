@@ -8,7 +8,6 @@
 namespace trk {
 
 class InputGPIO;
-class GPIOConfig;
 class TrackSensor;
 
 class Zone {
@@ -20,7 +19,6 @@ class Zone {
         std::string     zone_name();
         bool            state();
     private:
-        GPIOConfig*     gpio_config_;
         std::string     zone_name_;
         InputGPIO*      track_gpio_;
         TrackSensor*    track_sensor_;

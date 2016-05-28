@@ -23,6 +23,11 @@ struct GPIOData {
     string  color;
 };
 
+struct BLKData {
+    int         blk_index;
+    string      pin_name;
+};
+
 class GPIOConfig {
     public: 
         static GPIOConfig* instance();
@@ -39,6 +44,7 @@ class GPIOConfig {
         std::vector<string> zone_names();
         int         blk_base_addr();
         int         blk_index(const std::string& blk_name);
+        InputGPIO*  blk_gpio(const std::string& blk_name);
         std::vector<string> blk_names();
 
         void    list_header_pins(std::ostream& ostrm);
@@ -54,7 +60,7 @@ class GPIOConfig {
         map<string, string>     address_pins_;
         map<SWKey, string>      switch_pins_;
         map<string, string>     track_sensor_pins_;
-        map<string, int>        blocker_indicies_;
+        map<string, BLKData>   blocker_data_;
         string                  pcb_power_pin_;
         string                  brk_event_pin_;
 

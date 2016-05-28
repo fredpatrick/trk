@@ -39,6 +39,7 @@ bool
 trk::
 DemuxAddress::set(int addr)
 {
+    std::cout << "DemuxAddress.set, addr = " << addr <<std::endl;
     std::bitset<8 * sizeof(int)> b = addr;
     gpios_[4]->value(HIGH);
     gpios_[0]->value( GPIO_VALUE( (int)b[0] ));

@@ -50,6 +50,8 @@ int main() {
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
     Zones* zones = new Zones();
+    std::cout << "trkDriver: Zone instaces created" << std::endl;
+
     zones->enable_sensors(sensor_fds[1], n_event);
     std::cout << "trkDriver: Track  sensors created and activated" << std::endl;
 

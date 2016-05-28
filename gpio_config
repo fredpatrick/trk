@@ -5,6 +5,8 @@
 HDR P9-12   60  30  out yellow
 HDR P9-15   48  16  out violet
 HDR P9-23   49  17   in yellow
+HDR P8-07   66  36   in orange
+HDR P8-08   67  37   in yellow
 HDR P8-12   44  12  out grey
 HDR P8-14   26  10  out green
 HDR P8-15   47  15  out yellow
@@ -65,5 +67,5 @@ TRK O60X        P8-34
 PCB P9-15
 BRKSIG P9-23
 BLK Base 12
-BLK O72B 0
-BLK O60B 1
+BLK O72B 0  P8-07
+BLK O60B 1  P8-08

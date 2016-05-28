@@ -53,10 +53,16 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
         } else if ( tag == "BRKSIG") {
             from >> brk_event_pin_;
         } else if ( tag == "BLK" ) {
+            BLKData bd;
             string  blk_name;
-            int     blk_index;
-            from >> blk_name >> blk_index;
-            blocker_indicies_[blk_name] = blk_index;
+            from >> blk_name;
+            if ( blk_name == "Base" ) {
+                from >> bd.blk_index;
+                bd.pin_name = "NA";
+            } else {
+                from >> bd.blk_index >> bd.pin_name;
+            }
+            blocker_data_[blk_name] = bd;
         }
     }
 }
@@ -133,14 +139,23 @@ int
 trk::GPIOConfig::
 blk_base_addr()
 {
-    return blocker_indicies_["Base"];
+    return blocker_data_["Base"].blk_index;
 }
 
 int 
 trk::GPIOConfig::
 blk_index(const std::string& blk_name)
 {
-    return blocker_indicies_[blk_name];
+    return blocker_data_[blk_name].blk_index;
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+blk_gpio(const std::string& blk_name)
+{
+    std::string pin_name = blocker_data_[blk_name].pin_name;
+    GPIOData    d        = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
 }
 
 std::vector<string>
@@ -148,8 +163,8 @@ trk::GPIOConfig::
 blk_names()
 {
     std::vector<string> bns;
-    typedef std::map<std::string, int>::const_iterator CI;
-    for ( CI p = blocker_indicies_.begin(); p != blocker_indicies_.end(); p++) {
+    typedef std::map<std::string, BLKData>::const_iterator CI;
+    for ( CI p = blocker_data_.begin(); p != blocker_data_.end(); p++) {
         bns.push_back( p->first);
     }
     return bns;

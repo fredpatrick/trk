@@ -1,5 +1,5 @@
-#ifndef TRK_BLOCKERS_HH
-#define TRK_BLOCKERS_HH
+#ifndef TRK_BLOCKS_HH
+#define TRK_BLOCKS_HH
 
 #include <map>
 #include <vector>
@@ -8,19 +8,20 @@
 
 namespace trk
 {
-    class Blocker;
+    class Block;
 
-    class Blockers
+    class Blocks
     {
         public:
-            Blockers();
-            ~Blockers();
+            Blocks();
+            ~Blocks();
 
             bool        blockit(const std::string& blk_name);
             bool        clearit(const std::string& blk_name);
+            bool        enable_sensors(int sensor_fd, int& n_event);
         private:
             std::vector<std::string> blk_names_;
-            std::map<std::string, Blocker*> blockers_;
+            std::map<std::string, Block*> blocks_;
     };
 }
 
