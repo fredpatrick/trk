@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "SwitchSensor.h"
+#include "SwitchEvent.h"
 #include "JobClock.h"
 
 
@@ -43,19 +44,15 @@ event(int ierr, InputGPIO* gpio)
     value_ = (int)gpio->value();
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
-    std::cout.width(50);
-    std::cout << "* ";
-    std::cout << "SwitchSensor.event:{" << sw_num_ << ", " <<  sw_direc_ << 
-                        "}, " << n_event_ << ", "<< tm_event_ << std::endl;
+
     std::cout.width(50);
     std::cout << "* ";
     std::cout << "SwitchSensor.event: value = " << value_ << 
             " count = " << count_ << std::endl;
 
-    string tag = "SW ";
-    int ns = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
-    ns = write(sensor_fd_, &sw_num_, sizeof(int) );
-    ns = write(sensor_fd_, &sw_direc_, sizeof(int) );
+    SwitchEvent* sw_event = new SwitchEvent(tm_event_, sw_num_, sw_direc_);
+    sw_event-> write_event(sensor_fd_);
+    sw_event->print(50);
 }
 
 int

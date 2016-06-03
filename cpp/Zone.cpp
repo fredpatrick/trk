@@ -35,7 +35,8 @@ enable_sensor(int sensor_fd, int& n_event)
     track_gpio_->edge_type(BOTH);
     track_gpio_->debounce_time(200);
     track_gpio_->wait_for_edge(track_sensor_);
-    std::cout << "Zone.ctor, Poll started on Zone " << zone_name_ << endl;
+    std::cout << "Zone.enable_sensor, Poll started on track sensor for  one " << 
+                                     zone_name_ << endl;
 
     return true;
 }

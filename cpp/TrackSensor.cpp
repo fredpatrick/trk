@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "TrackSensor.h"
+#include "TrackEvent.h"
 #include "JobClock.h"
 
 trk::TrackSensor::
@@ -38,20 +39,17 @@ event(int ierr, InputGPIO* gpio)
     if ( ignore_event_ ) return;
     n_event_++;
     value_ = (int)gpio->value();
+    std::string type;
+    if      ( value_ == 0) type = "ENTRY";
+    else if ( value_ == 1) type = "EXIT";
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
     std::cout << "* ";
     std::cout << "TrackSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
-    std::cout.width(50);
-    std::cout << "* " << "TrackSensor.event, " << zone_name_ << 
-                                  ", value = " << value_ << std::endl; 
-    string tag = "TRK";
-    int ns = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
-    int nc = zone_name_.length() + 1;
-    ns = write(sensor_fd_, &nc, sizeof(int) );
-    ns = write(sensor_fd_, zone_name_.c_str(), nc);
-    ns = write(sensor_fd_, &value_, sizeof(int) );
+    TrackEvent* trk_event = new TrackEvent(tm_event_, zone_name_, type);
+    trk_event->write_event(sensor_fd_);
+    trk_event->print(50);
 }
 
 int

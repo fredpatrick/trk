@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "BlockSensor.h"
+#include "BlockEvent.h"
 #include "JobClock.h"
 
 trk::BlockSensor::
@@ -38,20 +39,19 @@ event(int ierr, InputGPIO* gpio)
     if ( ignore_event_ ) return;
     n_event_++;
     value_ = (int)gpio->value();
+    std::string blk_status;
+    if      ( value_ == 0 ) blk_status = "ON";
+    else if ( value_ == 1 ) blk_status = "OFF";
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
     std::cout << "* ";
     std::cout << "BlockSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
-    std::cout.width(50);
-    std::cout << "* " << "BlockSensor.event, " << blk_name_ << 
-                                  ", value = " << value_ << std::endl; 
+
+    BlockEvent* blk_event = new BlockEvent(tm_event_, blk_name_, blk_status);
+    blk_event->write_event(sensor_fd_);
+    blk_event->print(50);
     string tag = "TRK";
-    int ns = write(sensor_fd_, tag.c_str(), tag.length() + 1 );
-    int nc = blk_name_.length() + 1;
-    ns = write(sensor_fd_, &nc, sizeof(int) );
-    ns = write(sensor_fd_, blk_name_.c_str(), nc);
-    ns = write(sensor_fd_, &value_, sizeof(int) );
 }
 
 int

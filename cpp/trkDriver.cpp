@@ -9,6 +9,7 @@
 #include "EnablePCB.h"
 #include "EnableBrkEvent.h"
 #include "Zones.h"
+#include "Blocks.h"
 
 using namespace trk;
 
@@ -54,6 +55,12 @@ int main() {
 
     zones->enable_sensors(sensor_fds[1], n_event);
     std::cout << "trkDriver: Track  sensors created and activated" << std::endl;
+
+    Blocks* blocks = new Blocks();
+    std::cout << "trkDriver: Block instaces created" << std::endl;
+
+    blocks->enable_sensors(sensor_fds[1], n_event);
+    std::cout << "trkDriver: Block sensors created and activated" << std::endl;
 
     bool done = false;
     while ( !done ) {

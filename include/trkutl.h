@@ -9,6 +9,9 @@ namespace trk
 
 enum SW_DIRECTION {THRU, OUT, NOVAL };
 
+enum TrackState { LowerLoopCW, LowerLoopCCW,
+                  UpperLoopCW, UpperLoopCCW };
+
 struct SWKey {
     int             num; 
     SW_DIRECTION    swd;
@@ -21,6 +24,13 @@ struct SWKey {
 
         if ( a < b) return true;
         else        return false;
+    }
+
+    bool
+    operator== (const SWKey& k2) const
+    {
+        if ( num == k2.num && swd == k2.swd ) return true;
+        else                                  return false;
     }
 };
 
@@ -35,6 +45,12 @@ operator>>( std::istream& is, trk::SW_DIRECTION& idirec);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec);
+
+std::istream&
+operator>>( std::istream& is, trk::TrackState& idirec);
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::TrackState& idirec);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SWKey& kwy);

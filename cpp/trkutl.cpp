@@ -76,6 +76,34 @@ operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
     return ostrm;
 }
 
+std::istream& 
+operator>>( std::istream& is, trk::TrackState& trkstate)
+{
+    std::string tmp;
+    if ( is >> tmp ) {
+        if ( tmp == "LowerLoopCW") {
+            trkstate = trk::LowerLoopCW;
+        } else if ( tmp == "LowerLoopCCW" ) {
+            trkstate = trk::LowerLoopCCW;
+        } else if ( tmp == "UpperLoopCW" ) {
+            trkstate = trk::UpperLoopCW;
+        } else if ( tmp == "UpperLoopCCW" ) {
+            trkstate = trk::UpperLoopCCW;
+        }
+    }
+    return is;
+}
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::TrackState& trkstate)
+{
+    if (      trkstate == trk::LowerLoopCW  )   ostrm << "LowerLoopCW";
+    else if ( trkstate == trk::LowerLoopCCW )   ostrm << "LowerLoopCCW";
+    else if ( trkstate == trk::UpperLoopCW  )   ostrm << "UpperLoopCW";
+    else if ( trkstate == trk::UpperLoopCCW )   ostrm << "UpperLoopCCW";
+    return ostrm;
+}
+
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SWKey& key)
 {

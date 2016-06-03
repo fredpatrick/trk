@@ -81,8 +81,8 @@ trk::SW_DIRECTION
 trk::Switch::
 state()
 {
-    int sw_thru = switch_sensor_thru_->value();
-    int sw_out  = switch_sensor_out_->value();
+    int sw_thru = gpio_thru_->value();
+    int sw_out  = gpio_out_->value();
 
     if     ( sw_thru == 1 && sw_out == 0 ) return THRU;
     else if ( sw_thru == 0 && sw_out == 1 ) return OUT;

@@ -15,6 +15,7 @@ class Switches {
         void set_direction(const SWKey& key);
         void manual_set();
 
+        void scan(SW_DIRECTION* sw_state);
         void list_state();
     private:
         Switch*     switch_[6];

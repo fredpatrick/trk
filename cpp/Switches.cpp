@@ -56,6 +56,16 @@ manual_set()
 
 void
 trk::Switches::
+scan(SW_DIRECTION* sw_state)
+{
+    for ( int i = 0; i < 6; i++) {
+        SW_DIRECTION swd = switch_[i]->state();
+        sw_state[i] = swd;
+    }
+}
+
+void
+trk::Switches::
 list_state()
 {
     for ( int i = 0; i < 6; i++) {
