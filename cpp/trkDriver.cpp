@@ -7,7 +7,9 @@
 #include "Switches.h"
 #include "DemuxAddress.h"
 #include "EnablePCB.h"
-#include "EnableBrkEvent.h"
+#include "EnableBreakEvent.h"
+#include "EventFactory.h"
+#include "InputEvent.h"
 #include "Zones.h"
 #include "Blocks.h"
 
@@ -46,7 +48,7 @@ int main() {
                                 // incremented, when code trkDriver readfs from sensor_fds[0]
                                 // n_event is decremented until pipe is empty.
 
-    EnableBrkEvent* brk_event = new EnableBrkEvent(sensor_fds[1], n_event );
+    EnableBreakEvent* brk_event = new EnableBreakEvent(sensor_fds[1], n_event );
     switches->enable_sensors(sensor_fds[1], n_event );
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
@@ -62,57 +64,30 @@ int main() {
     blocks->enable_sensors(sensor_fds[1], n_event);
     std::cout << "trkDriver: Block sensors created and activated" << std::endl;
 
+    EventFactory* event_factory = EventFactory::instance();
+    InputEvent*   event;
     bool done = false;
+    std::cout << "trkDriver: Entering event loop" << std::endl;
     while ( !done ) {
-        std::cout << "trkDriver: Read on event pipe, n_event = " << n_event << std::endl;
-        char* ctag = new char[4];
-        read(sensor_fds[0], ctag, 4); 
-        std::string tag = ctag;
-        std::string zone_name;
+        InputEvent* event = event_factory->get_next_event(sensor_fds[0]);
         while  ( n_event > 0 ) {
-            std::cout << "trkDriver: event " << tag << ", n_event=" <<
-                                n_event << ", " << *job_clock << std::endl;
-            zones->scan();
-            if ( tag == "BRK" ) {
+            if ( event == 0 ) {
+                std::cout << "trkDriver: Error getting next event" << std::endl;
                 done = true;
-            } else if ( tag == "SW " ) {
-                int sw_num;
-                read(sensor_fds[0], &sw_num, sizeof(int) );
-                SW_DIRECTION sw_direc;
-                read(sensor_fds[0], &sw_direc, sizeof(int) );
-                std::cout << "trkDriver:read sensor_fd,sw = {" << sw_num << ", " << 
-                                                  sw_direc << "}" << std::endl;
-            } else if ( tag == "TRK" ) {
-                int nc;
-                read(sensor_fds[0], &nc, sizeof(int) );
-                char* zn = new char[nc];
-                read(sensor_fds[0], zn, nc);
-                int v;
-                read(sensor_fds[0], &v, sizeof(int) );
-                zone_name = zn;
-                std::cout << "trkDriver:read sensor_fd, " << zone_name << " = " << v << endl;
-            }
-            n_event--;
-            if ( n_event > 0 ) {
-                std::cout << "trkDriver: Read on event pipe, n_event = " << 
-                                     n_event << std::endl;
-                read(sensor_fds[0], ctag, 4);
+                break;
+            } else {
+                std::cout << "| trkDriver: " << event->tag() << 
+                                " received at " << *job_clock << std::endl;
+                if ( event->tag() == "BRK" ) {
+                    done = true;
+                }
+                event->print(0);
+                n_event--;
+                if ( n_event > 0 ) {
+                    event = event_factory->get_next_event( sensor_fds[0] );
+                }
             }
         }
-//      if ( !done) {
-//          yesno = get_yesno( "trkDriver flip(_switches?");
-//          if ( yesno == "yes" ) {
-//              bool flip_sw = true;
-//              while ( flip_sw ) {
-//                  SWKey key = get_switch();
-//                  if ( key.num != -1) {
-//                      switches->set_direction(key);
-//                  } else {
-//                      flip_sw = false;
-//                  }
-//              }
-//          }
-//      }
     }
 
     delete brk_event;

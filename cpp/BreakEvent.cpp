@@ -15,6 +15,7 @@ BreakEvent(int sensor_fd)
 trk::BreakEvent::
 BreakEvent(double      tm_event)
 {
+    tag_        = "BRK";
     tm_event_   = tm_event;
 }
 
@@ -25,6 +26,7 @@ write_event(int fd)
 {
     int ns = write(fd, tag_.c_str(), tag_.length() + 1 );
     ns = write(fd, &tm_event_, sizeof(double) );
+
 }
 
 void
@@ -32,6 +34,6 @@ trk::BreakEvent::
 print(int ntab)
 {
     std::cout.width(ntab);
-    std::cout << "*";
+    std::cout << "| ";
     std::cout << "BreakEvent::" << tm_event_ << std::endl;
 }

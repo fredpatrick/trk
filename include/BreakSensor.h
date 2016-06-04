@@ -1,5 +1,5 @@
-#ifndef TRK_BRKEVENTSENSOR_HH
-#define TRK_BRKEVENTSENSOR_HH
+#ifndef TRK_BREAKSENSOR_HH
+#define TRK_BREAKSENSOR_HH
 
 #include "InputSensor.h"
 #include "GPIO.h"
@@ -9,11 +9,11 @@ namespace trk {
 
 class JobClock;
 
-class BrkEventSensor : public InputSensor
+class BreakSensor : public InputSensor
 {
     public:
-        BrkEventSensor( int sensor_fd, int& n_event);
-        ~BrkEventSensor();
+        BreakSensor( int sensor_fd, int& n_event);
+        ~BreakSensor();
 
         void event (int ierr, InputGPIO* gpio);
         int     value();

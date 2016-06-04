@@ -45,7 +45,7 @@ event(int ierr, InputGPIO* gpio)
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
-    std::cout << "* ";
+    std::cout << "| ";
     std::cout << "BlockSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
 
     BlockEvent* blk_event = new BlockEvent(tm_event_, blk_name_, blk_status);

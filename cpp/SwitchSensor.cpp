@@ -16,8 +16,6 @@ SwitchSensor( int sw_num, const SW_DIRECTION& sw_direc,
     sw_num_     = sw_num;
     sensor_fd_  = sensor_fd;
     ignore_event_ = false;
-//  std::cout << "SwitchSensor.ctor: sw_num = " << sw_num_ <<
-//                                " sw_direc = " << sw_direc_ << std::endl;
 
 }
 
@@ -46,7 +44,7 @@ event(int ierr, InputGPIO* gpio)
     tm_event_ = job_clock_->job_time();
 
     std::cout.width(50);
-    std::cout << "* ";
+    std::cout << "| ";
     std::cout << "SwitchSensor.event: value = " << value_ << 
             " count = " << count_ << std::endl;
 

@@ -52,7 +52,7 @@ trk::TrackEvent::
 print(int ntab)
 {
     std::cout.width(ntab);
-    std::cout << "*";
+    std::cout << "| ";
     std::cout << "TrackEvent::" << zone_name_ << " - " << 
                                  type_ <<  " - " << tm_event_ << std::endl;
 }

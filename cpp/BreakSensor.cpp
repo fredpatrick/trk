@@ -11,7 +11,6 @@ BreakSensor( int sensor_fd, int& n_event) : n_event_(n_event)
 {
     job_clock_  = JobClock::instance();
     sensor_fd_  = sensor_fd;
-//  std::cout << "BreakSensor.ctor:" ;
 
 }
 
@@ -30,7 +29,7 @@ event(int ierr, InputGPIO* gpio)
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
-    std::cout << "* ";
+    std::cout << "| ";
     std::cout << "BreakSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
     BreakEvent* brk_event = new BreakEvent(tm_event_);
     brk_event->write_event(sensor_fd_);

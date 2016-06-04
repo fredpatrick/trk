@@ -45,7 +45,7 @@ event(int ierr, InputGPIO* gpio)
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
-    std::cout << "* ";
+    std::cout << "| ";
     std::cout << "TrackSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
     TrackEvent* trk_event = new TrackEvent(tm_event_, zone_name_, type);
     trk_event->write_event(sensor_fd_);

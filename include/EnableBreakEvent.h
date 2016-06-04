@@ -1,22 +1,22 @@
 
-#ifndef TRK_ENABLEBRKEVENT_HH
-#define TRK_ENABLEBRKEVENT_HH
+#ifndef TRK_ENABLEBREAKEVENT_HH
+#define TRK_ENABLEBREAKEVENT_HH
 
 #include "GPIO.h"
 
 namespace trk {
 
-class BrkEventSensor;
+class BreakSensor;
 
-class EnableBrkEvent {
+class EnableBreakEvent {
 
     public:
-        EnableBrkEvent(int sensor_fd , int& n_event);
-        ~EnableBrkEvent();
+        EnableBreakEvent(int sensor_fd , int& n_event);
+        ~EnableBreakEvent();
 
     private:
         InputGPIO*            gpio_brk_;
-        BrkEventSensor*       brk_event_sensor_;
+        BreakSensor*       brk_event_sensor_;
 };
 
 

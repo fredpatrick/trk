@@ -9,9 +9,6 @@ SwitchEvent(int sensor_fd)
     tag_ = "SW ";
 
     read(sensor_fd, &tm_event_, sizeof(double) );
-    int nc;
-    read(sensor_fd, &nc, sizeof(int) );
-    char* bn = new char[nc];
     read(sensor_fd, &sw_num_, sizeof(int));
     read(sensor_fd, &sw_direc_, sizeof(int));
 }
@@ -42,7 +39,7 @@ trk::SwitchEvent::
 print(int ntab)
 {
     std::cout.width(ntab);
-    std::cout << "*";
+    std::cout << "| ";
     std::cout << "SwitchEvent::" << sw_num_ << " - " << 
                                  sw_direc_ <<  " - " << tm_event_ << std::endl;
 }

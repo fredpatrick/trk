@@ -53,7 +53,7 @@ trk::BlockEvent::
 print(int ntab)
 {
     std::cout.width(ntab);
-    std::cout << "*";
+    std::cout << "| ";
     std::cout << "BlockEvent::" << block_name_ << " - " << 
                                  block_status_ <<  " - " << tm_event_ << std::endl;
 }
