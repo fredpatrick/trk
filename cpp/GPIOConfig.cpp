@@ -57,12 +57,11 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
             string  blk_name;
             from >> blk_name;
             if ( blk_name == "Base" ) {
-                from >> bd.blk_index;
-                bd.pin_name = "NA";
+                from >> blk_base_index_;
             } else {
                 from >> bd.blk_index >> bd.pin_name;
+                blocker_data_[blk_name] = bd;
             }
-            blocker_data_[blk_name] = bd;
         }
     }
 }
@@ -139,7 +138,7 @@ int
 trk::GPIOConfig::
 blk_base_addr()
 {
-    return blocker_data_["Base"].blk_index;
+    return blk_base_index_;
 }
 
 int 
@@ -223,7 +222,7 @@ GPIOConfig::list_pcb_power_pin(std::ostream& ostrm)
 }
 
 std::ostream&
-operator<<( std::ostream& ostrm, const trk::GPIOData& data)
+trk::operator<<( std::ostream& ostrm, const trk::GPIOData& data)
 {
     ostrm << data.gpio_num << '\t' << data.gpio_pin << '\t' << 
                                      data.direction << '\t' << data.color;

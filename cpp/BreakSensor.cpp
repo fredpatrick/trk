@@ -24,6 +24,9 @@ void
 trk::BreakSensor::
 event(int ierr, InputGPIO* gpio)
 {
+    int ier = pthread_mutex_lock(&write_event_);
+    if (ier != 0 ) std::cout << "BreakSensor.event, couldn't lock mutex, ier = " <<
+                                 ier << std::endl;
     n_event_++;
     value_ = (int)gpio->value();
     count_ = gpio->ev_count();
@@ -34,6 +37,9 @@ event(int ierr, InputGPIO* gpio)
     BreakEvent* brk_event = new BreakEvent(tm_event_);
     brk_event->write_event(sensor_fd_);
     brk_event->print(50);
+    ier = pthread_mutex_unlock(&write_event_);
+    if (ier != 0 ) std::cout << "BreakSensor.event, couldn't unlock mutex, ier = " <<
+                                 ier << std::endl;
 }
 
 int

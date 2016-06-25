@@ -61,16 +61,17 @@ class GPIOConfig {
         map<SWKey, string>      switch_pins_;
         map<string, string>     track_sensor_pins_;
         map<string, BLKData>   blocker_data_;
+        int                     blk_base_index_;
         string                  pcb_power_pin_;
         string                  brk_event_pin_;
 
         static GPIOConfig* instance_;
 };
 
-
-}
-
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::GPIOData& data);
+
+
+}
 
 #endif

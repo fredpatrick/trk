@@ -2,6 +2,7 @@
 #define TRK_INPUTSENSOR_HH
 
 #include <sys/time.h>
+#include <pthread.h>
 #include "GPIO.h"
 
 namespace trk {
@@ -16,6 +17,8 @@ class InputSensor
         virtual int     value() = 0;
         virtual int     count() = 0;
         virtual double  timeofday() = 0;
+    protected:
+        static pthread_mutex_t write_event_;
 };
 
 }

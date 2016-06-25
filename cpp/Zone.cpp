@@ -41,12 +41,13 @@ enable_sensor(int sensor_fd, int& n_event)
     return true;
 }
 
-bool
+trk::TRK_STATE
 trk::Zone::
 state()
 {
-    int v = track_gpio_->value();
-    return v;
+    int v = (int)track_gpio_->value();
+    if ( v == 0 ) return OFF;
+    else          return ON;
 }
 
 std::string

@@ -46,6 +46,7 @@ get_next_event(int fd)
     } else if ( tag == "TRK" ) {
         event = new TrackEvent(fd);
     } else {
+        std::cout << "EventFactory.get_next_event, invalid tag = " << tag << std::endl;
         return 0;
     }
     return event;

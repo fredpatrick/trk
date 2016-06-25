@@ -11,14 +11,16 @@ Zones()
     gpio_config_ = GPIOConfig::instance();
     zone_names_ = gpio_config_->zone_names();
     for ( int i = 0; i < zone_names_.size(); i++) {
-        zones_[zone_names_[i] ] = new Zone(zone_names_[i]);
+        zones_[i] = new Zone(zone_names_[i]);
+        zone_indexes_[zone_names_[i]] = i;
+        std::cout << "Zones.ctor, i = " << i << ", " << zone_names_[i] << std::endl;
     }
 }
 
 trk::Zones::
 ~Zones() {
     for ( int i = 0; i < zone_names_.size(); i++) {
-        delete zones_[zone_names_[i] ];
+        delete zones_[i];
     }
 }
 
@@ -28,18 +30,29 @@ trk::Zones::
 enable_sensors(int sensor_fd, int& n_event)
 {
     for ( int i = 0; i < 6; i++) {
-        zones_[ zone_names_[i] ]->enable_sensor(sensor_fd, n_event);
+        zones_[ i ]->enable_sensor(sensor_fd, n_event);
     }
     return true;
 }
 
-bool
+int
 trk::Zones::
-scan(){
-    std::cout << "Zones.scan ";
-    for ( int i = 0; i < 6; i++) {
-        int v = zones_[ zone_names_[i] ]->state();
-        std::cout << zone_names_[i] << " " << v << " ";
-    }
-    std::cout << std::endl;
+n_zone() const
+{
+    return zones_.size();
+}
+
+trk::TRK_STATE
+trk::Zones::
+get_state(int i) const
+{
+    return zones_[i]->state();
+}
+
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const trk::Zones& zones)
+{
+    int n = zones.n_zone();
+    for ( int i = 0; i < n; i++) ostrm << zones.get_state(i);
+    return ostrm;
 }

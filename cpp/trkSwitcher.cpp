@@ -15,18 +15,24 @@ int main()
                    "has started BBB circuits" << std::endl;
 
     Switches* switches =  new Switches();
-    switches->manual_set();
-
     SW_DIRECTION sw_state[6];
+    bool done = false;
+    while ( !done) {
+        switches->scan(sw_state);
+        for (int i = 0; i < 6; i++) std::cout << sw_state[i] << " ";
+        std::cout << std::endl;
+        done = switches->manual_set();
+    }
+
     TrackState current_state = LowerLoopCW;
     TrackState next_state;
-    bool done = false;
+    done = false;
     while ( !done ) {
         std::cout << "trkSwitcher: current_state = " << current_state << std::endl;
         switches->scan(sw_state);
         for (int i = 0; i < 6; i++) std::cout << sw_state[i] << " ";
         std::cout << std::endl;
-        SWKey swkey = get_switch();
+        SWKey swkey = switches->get_switch_key();
         if ( swkey.num == -1 ) {
             done = true;
             break;

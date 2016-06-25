@@ -17,7 +17,7 @@ class Zone {
 
         bool            enable_sensor(int sensor_fd, int& n_event);
         std::string     zone_name();
-        bool            state();
+        TRK_STATE       state();
     private:
         std::string     zone_name_;
         InputGPIO*      track_gpio_;

@@ -70,9 +70,24 @@ operator>>( std::istream& is, trk::SW_DIRECTION& idirec)
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
 {
-    if ( idirec == trk::THRU )      ostrm << "THRU";
-    else if ( idirec == trk::OUT )   ostrm << "OUT";
-    else if ( idirec == trk::NOVAL)  ostrm << "NOVAL";
+    if ( idirec == trk::THRU )       ostrm << "THRU  ";
+    else if ( idirec == trk::OUT )   ostrm << "OUT   ";
+    else if ( idirec == trk::NOVAL)  ostrm << "NOVAL ";
+    return ostrm;
+}
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate)
+{
+    if      ( trkstate == trk::ON  ) ostrm << "ON  ";
+    else if ( trkstate == trk::OFF ) ostrm << "OFF ";
+    return ostrm;
+}
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate)
+{
+    if      ( blkstate == trk::GO   ) ostrm << "GO   ";
+    else if ( blkstate == trk::STOP ) ostrm << "STOP ";
     return ostrm;
 }
 
@@ -105,7 +120,7 @@ operator<<( std::ostream& ostrm, const trk::TrackState& trkstate)
 }
 
 std::ostream&
-operator<<( std::ostream& ostrm, const trk::SWKey& key)
+trk::operator<<( std::ostream& ostrm, const trk::SWKey& key)
 {
     ostrm << "trk::SWKey: " << key.num << '\t' << key.swd;
     return ostrm;

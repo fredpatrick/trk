@@ -37,6 +37,9 @@ trk::TrackSensor::
 event(int ierr, InputGPIO* gpio)
 {
     if ( ignore_event_ ) return;
+    int ier = pthread_mutex_lock(&write_event_);
+    if ( ier != 0 ) std::cout << "TrackSensor.event, couldn't lock mutex, ier = " << 
+                                ier << std::endl;
     n_event_++;
     value_ = (int)gpio->value();
     std::string type;
@@ -50,6 +53,9 @@ event(int ierr, InputGPIO* gpio)
     TrackEvent* trk_event = new TrackEvent(tm_event_, zone_name_, type);
     trk_event->write_event(sensor_fd_);
     trk_event->print(50);
+    ier = pthread_mutex_unlock(&write_event_);
+    if ( ier != 0 ) std::cout << "TrackSensor.event, couldn't unlock mutex, ier = " << 
+                                ier << std::endl;
 }
 
 int

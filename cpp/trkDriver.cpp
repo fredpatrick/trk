@@ -32,9 +32,18 @@ int main() {
          pcp->on();
     }
 
-    Switches* switches = new Switches();
+    SW_DIRECTION sw_state[6];
+    Switches switches;
+    std::cout << switches << std::endl;
     std::cout << "trkDriver: Set initial switch positions" << std::endl;
-    switches->manual_set();
+    bool done = false;
+    while ( !done) {
+        switches.scan(sw_state);
+        for (int i = 0; i < 6; i++) std::cout << sw_state[i] << " ";
+        std::cout << std::endl;
+        done = switches.manual_set();
+    }
+    std::cout << switches << std::endl;
 
     int sensor_fds[2];
     if ( pipe( sensor_fds) == -1 ) {
@@ -49,31 +58,33 @@ int main() {
                                 // n_event is decremented until pipe is empty.
 
     EnableBreakEvent* brk_event = new EnableBreakEvent(sensor_fds[1], n_event );
-    switches->enable_sensors(sensor_fds[1], n_event );
+    switches.enable_sensors(sensor_fds[1], n_event );
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
-    Zones* zones = new Zones();
+    Zones zones;
     std::cout << "trkDriver: Zone instaces created" << std::endl;
 
-    zones->enable_sensors(sensor_fds[1], n_event);
+    zones.enable_sensors(sensor_fds[1], n_event);
     std::cout << "trkDriver: Track  sensors created and activated" << std::endl;
-
-    Blocks* blocks = new Blocks();
+    std::cout << zones << std::endl;
+    Blocks blocks;
     std::cout << "trkDriver: Block instaces created" << std::endl;
+    std::cout << blocks << std::endl;
 
-    blocks->enable_sensors(sensor_fds[1], n_event);
+    blocks.enable_sensors(sensor_fds[1], n_event);
     std::cout << "trkDriver: Block sensors created and activated" << std::endl;
 
     EventFactory* event_factory = EventFactory::instance();
     InputEvent*   event;
-    bool done = false;
+    done = false;
     std::cout << "trkDriver: Entering event loop" << std::endl;
     while ( !done ) {
         InputEvent* event = event_factory->get_next_event(sensor_fds[0]);
         while  ( n_event > 0 ) {
+            std::cout << switches << zones << blocks << std::endl;
             if ( event == 0 ) {
                 std::cout << "trkDriver: Error getting next event" << std::endl;
-                done = true;
+                done = false;
                 break;
             } else {
                 std::cout << "| trkDriver: " << event->tag() << 
@@ -91,7 +102,7 @@ int main() {
     }
 
     delete brk_event;
-    delete switches;
+//  delete switches;
     pcp->off();
     delete pcp;
     DemuxAddress* da = DemuxAddress::instance();

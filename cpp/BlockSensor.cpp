@@ -36,6 +36,9 @@ void
 trk::BlockSensor::
 event(int ierr, InputGPIO* gpio)
 {
+    int ier = pthread_mutex_lock(&write_event_);
+    if ( ier != 0 ) std::cout << "BlockSensor.event, couldn't lock mutex, ier = " <<
+                                ier << std::endl;
     if ( ignore_event_ ) return;
     n_event_++;
     value_ = (int)gpio->value();
@@ -51,6 +54,9 @@ event(int ierr, InputGPIO* gpio)
     BlockEvent* blk_event = new BlockEvent(tm_event_, blk_name_, blk_status);
     blk_event->write_event(sensor_fd_);
     blk_event->print(50);
+    ier = pthread_mutex_unlock(&write_event_);
+    if ( ier != 0 ) std::cout << "BlockSensor.event, couldn't unlock mutex, ier = " <<
+                                ier << std::endl;
     string tag = "TRK";
 }
 

@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#include "trkutl.h"
+
 namespace trk
 {
     class Block;
@@ -19,10 +21,18 @@ namespace trk
             bool        blockit(const std::string& blk_name);
             bool        clearit(const std::string& blk_name);
             bool        enable_sensors(int sensor_fd, int& n_event);
+
+            int         n_block() const;
+            BLK_STATE   get_state(int i) const;
         private:
-            std::vector<std::string> blk_names_;
-            std::map<std::string, Block*> blocks_;
+            std::vector<std::string>    blk_names_;
+            std::map<std::string, int > block_indexes_;
+            std::vector<Block*>         blocks_;
     };
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::Blocks& blocks);
+
 }
 
 #endif

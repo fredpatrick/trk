@@ -37,6 +37,9 @@ trk::SwitchSensor::
 event(int ierr, InputGPIO* gpio)
 {
     if ( ignore_event_ ) return;
+    int ier = pthread_mutex_lock(&write_event_);
+    if ( ier != 0 ) std::cout << "SwitchSensor.event, couldn't lock mutex, ier = " <<
+                                 ier << std::endl;
     n_event_++;
 
     value_ = (int)gpio->value();
@@ -51,6 +54,9 @@ event(int ierr, InputGPIO* gpio)
     SwitchEvent* sw_event = new SwitchEvent(tm_event_, sw_num_, sw_direc_);
     sw_event-> write_event(sensor_fd_);
     sw_event->print(50);
+    ier = pthread_mutex_unlock(&write_event_);
+    if ( ier != 0 ) std::cout << "SwitchSensor.event, couldn't unlock mutex, ier = " <<
+                                 ier << std::endl;
 }
 
 int

@@ -9,6 +9,7 @@ SwitchEvent(int sensor_fd)
     tag_ = "SW ";
 
     read(sensor_fd, &tm_event_, sizeof(double) );
+    read(sensor_fd, &event_seq_n_, sizeof(int) );
     read(sensor_fd, &sw_num_, sizeof(int));
     read(sensor_fd, &sw_direc_, sizeof(int));
 }
@@ -22,6 +23,7 @@ SwitchEvent(double          tm_event,
     tm_event_     = tm_event;
     sw_num_       = sw_num;
     sw_direc_     = sw_direc;
+    event_seq_n_++;
 }
 
 int
@@ -30,6 +32,7 @@ write_event(int fd)
 {
     int ns = write(fd, tag_.c_str(), tag_.length() + 1 );
     ns = write(fd, &tm_event_, sizeof(double) );
+    ns = write(fd, &event_seq_n_, sizeof(int) );
     ns = write(fd, &sw_num_,   sizeof(int) );
     ns = write(fd, &sw_direc_, sizeof(int) );
 }
@@ -41,7 +44,8 @@ print(int ntab)
     std::cout.width(ntab);
     std::cout << "| ";
     std::cout << "SwitchEvent::" << sw_num_ << " - " << 
-                                 sw_direc_ <<  " - " << tm_event_ << std::endl;
+                                 sw_direc_ <<  " - " << " - " <<
+                                 event_seq_n_ << " - " << tm_event_ << std::endl;
 }
 
 int

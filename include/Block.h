@@ -2,6 +2,7 @@
 #define TRK_BLOCK_HH
 
 #include <string>
+#include "trkutl.h"
 
 namespace trk  
 {
@@ -19,7 +20,7 @@ namespace trk
             bool        enable_sensor( int sensor_fd, int& n_event);
             bool        set();
             bool        clear();
-            int         state();
+            BLK_STATE   state();
             std::string blk_name();
 
         private:

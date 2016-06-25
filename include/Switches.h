@@ -11,16 +11,22 @@ class Switches {
         Switches();
         ~Switches();
 
-        bool enable_sensors(int sensor_fd, int& n_event);
-        void set_direction(const SWKey& key);
-        void manual_set();
+        bool        enable_sensors(int sensor_fd, int& n_event);
+        void        set_direction(const SWKey& key);
+        bool        manual_set();
+        SWKey       get_switch_key();
+        Switch*     swtch(int i) const;
 
-        void scan(SW_DIRECTION* sw_state);
-        void list_state();
+        void        scan(SW_DIRECTION* sw_state);
+        void        list_state();
     private:
         Switch*     switch_[6];
 };
 
+
+std::ostream&
+operator<<(std::ostream& ostrm, const trk::Switches& switches);
 }
+
 
 #endif

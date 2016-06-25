@@ -56,11 +56,13 @@ clear()
     demux_address_->set(blk_addr);
 }
 
-int
+trk::BLK_STATE
 trk::Block::
 state()
 {
-    return gpio_->value();
+    int v = (int)gpio_->value();
+    if ( v == 0 ) return GO;
+    else          return STOP;
 }
 
 std::string
