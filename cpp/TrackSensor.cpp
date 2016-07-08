@@ -41,16 +41,16 @@ event(int ierr, InputGPIO* gpio)
     if ( ier != 0 ) std::cout << "TrackSensor.event, couldn't lock mutex, ier = " << 
                                 ier << std::endl;
     n_event_++;
-    value_ = (int)gpio->value();
-    std::string type;
-    if      ( value_ == 0) type = "ENTRY";
-    else if ( value_ == 1) type = "EXIT";
+    value_ = gpio->value();
+    TRK_STATE track_state;
+    if      ( value_ == 0) track_state = IDLE;
+    else if ( value_ == 1) track_state = BUSY;
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);
     std::cout << "| ";
     std::cout << "TrackSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
-    TrackEvent* trk_event = new TrackEvent(tm_event_, zone_name_, type);
+    TrackEvent* trk_event = new TrackEvent(tm_event_, zone_name_, track_state);
     trk_event->write_event(sensor_fd_);
     trk_event->print(50);
     ier = pthread_mutex_unlock(&write_event_);

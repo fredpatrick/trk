@@ -68,7 +68,7 @@ operator>>( std::istream& is, trk::SW_DIRECTION& idirec)
 }
 
 std::ostream&
-operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
+trk::operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
 {
     if ( idirec == trk::THRU )       ostrm << "THRU  ";
     else if ( idirec == trk::OUT )   ostrm << "OUT   ";
@@ -76,15 +76,15 @@ operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
     return ostrm;
 }
 std::ostream&
-operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate)
+trk::operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate)
 {
-    if      ( trkstate == trk::ON  ) ostrm << "ON  ";
-    else if ( trkstate == trk::OFF ) ostrm << "OFF ";
+    if      ( trkstate == trk::IDLE) ostrm << " IDLE";
+    else if ( trkstate == trk::BUSY) ostrm << " BUSY ";
     return ostrm;
 }
 
 std::ostream&
-operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate)
+trk::operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate)
 {
     if      ( blkstate == trk::GO   ) ostrm << "GO   ";
     else if ( blkstate == trk::STOP ) ostrm << "STOP ";

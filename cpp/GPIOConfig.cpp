@@ -47,6 +47,7 @@ GPIOConfig::GPIOConfig(const string& cfgfil)
         } else if ( tag == "TRK")  {
             string zone_name;
             from >> zone_name >> pin_name;
+            zone_names_.push_back(zone_name);
             track_sensor_pins_[zone_name] = pin_name;
         } else if ( tag == "PCB")  {
             from >> pcb_power_pin_;
@@ -114,12 +115,7 @@ std::vector<string>
 trk::GPIOConfig::
 zone_names()
 {
-    std::vector<string> zns;
-    typedef std::map<std::string, std::string>::const_iterator CI;
-    for ( CI p = track_sensor_pins_.begin(); p != track_sensor_pins_.end(); p++) {
-        zns.push_back( p->first);
-    }
-    return zns;
+    return zone_names_;
 }
 
 void

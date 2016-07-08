@@ -10,12 +10,10 @@ Zone::Zone(const std::string& zone_name)
 {
     track_sensor_ = 0;
 
-//  std::cout << "Zone.ctor: zone_name = " << zone_name << std::endl;
     zone_name_ = zone_name;
     GPIOConfig* gpio_config = GPIOConfig::instance();
     track_gpio_  = gpio_config->track_gpio(zone_name_);
     track_sensor_ = 0;
-//  std:cout << "Zone.ctor: Got the gpios" << endl;
 }
 
 trk::Zone::
@@ -35,8 +33,6 @@ enable_sensor(int sensor_fd, int& n_event)
     track_gpio_->edge_type(BOTH);
     track_gpio_->debounce_time(200);
     track_gpio_->wait_for_edge(track_sensor_);
-    std::cout << "Zone.enable_sensor, Poll started on track sensor for  one " << 
-                                     zone_name_ << endl;
 
     return true;
 }
@@ -45,9 +41,9 @@ trk::TRK_STATE
 trk::Zone::
 state()
 {
-    int v = (int)track_gpio_->value();
-    if ( v == 0 ) return OFF;
-    else          return ON;
+    int v = track_gpio_->value();
+    if ( v == 0 ) return IDLE;
+    else          return BUSY;
 }
 
 std::string

@@ -4,6 +4,7 @@
 
 #include "BlockSensor.h"
 #include "BlockEvent.h"
+#include "trkutl.h"
 #include "JobClock.h"
 
 trk::BlockSensor::
@@ -41,10 +42,10 @@ event(int ierr, InputGPIO* gpio)
                                 ier << std::endl;
     if ( ignore_event_ ) return;
     n_event_++;
-    value_ = (int)gpio->value();
-    std::string blk_status;
-    if      ( value_ == 0 ) blk_status = "ON";
-    else if ( value_ == 1 ) blk_status = "OFF";
+    value_ = gpio->value();
+    BLK_STATE blk_status;
+    if      ( value_ == 0 ) blk_status = GO;
+    else if ( value_ == 1 ) blk_status = STOP;
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);

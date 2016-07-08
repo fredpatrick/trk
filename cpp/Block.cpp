@@ -60,7 +60,7 @@ trk::BLK_STATE
 trk::Block::
 state()
 {
-    int v = (int)gpio_->value();
+    int v = gpio_->value();
     if ( v == 0 ) return GO;
     else          return STOP;
 }

@@ -28,7 +28,7 @@ event(int ierr, InputGPIO* gpio)
     if (ier != 0 ) std::cout << "BreakSensor.event, couldn't lock mutex, ier = " <<
                                  ier << std::endl;
     n_event_++;
-    value_ = (int)gpio->value();
+    value_ = gpio->value();
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
     std::cout.width(50);

@@ -16,22 +16,18 @@ TrackEvent(int sensor_fd)
     ier = read(sensor_fd, zn, nc);
     zone_name_ = zn;
     delete zn;
-    int v;
-    ier = read(sensor_fd, &nc, sizeof(int) );
-    char* ty = new char[nc];
-    ier = read(sensor_fd, ty, nc);
-    type_ = ty;
+    ier = read(sensor_fd, &track_state_, sizeof(int) );
 }
 
 trk::TrackEvent::
 TrackEvent(double          tm_event,
             const std::string& zone_name,
-            const std::string& type)
+            const TRK_STATE&   track_state)
 {
-    tag_       = "TRK";
-    tm_event_  = tm_event;
-    zone_name_ = zone_name;
-    type_      = type;
+    tag_         = "TRK";
+    tm_event_    = tm_event;
+    zone_name_   = zone_name;
+    track_state_ = track_state;
     event_seq_n_++;
 }
 
@@ -46,9 +42,7 @@ write_event(int fd)
     int nc = zone_name_.length() + 1;
     ns = write(fd, &nc, sizeof(int) );
     ns = write(fd, zone_name_.c_str(), nc);
-    nc = type_.length() + 1;
-    ns = write(fd, &nc, sizeof(int) );
-    ns = write(fd, type_.c_str(), nc);
+    ns = write(fd, &track_state_, sizeof(int));
 }
 
 void
@@ -58,7 +52,7 @@ print(int ntab)
     std::cout.width(ntab);
     std::cout << "| ";
     std::cout << "TrackEvent::" << zone_name_ << " - " << 
-                          type_ <<  " - " << event_seq_n_ << " - "<< tm_event_ << std::endl;
+                          track_state_ <<  " - " << event_seq_n_ << " - "<< tm_event_ << std::endl;
 }
 
 std::string
@@ -68,9 +62,9 @@ zone_name()
     return zone_name_;
 }
 
-std::string
+trk::TRK_STATE
 trk::TrackEvent::
-type()
+track_state()
 {
-    return type_;
+    return track_state_;
 }

@@ -23,6 +23,7 @@ namespace trk
             bool        enable_sensors(int sensor_fd, int& n_event);
 
             int         n_block() const;
+            std::string blk_name(int i) const;
             BLK_STATE   get_state(int i) const;
         private:
             std::vector<std::string>    blk_names_;

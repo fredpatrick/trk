@@ -81,22 +81,22 @@ unexport_gpio()
    return gpio_write(GPIO_PATH, "unexport", number_);
 }
 
-trk::GPIO_VALUE
+int
 trk::GPIO::
 value(){
 	string input = gpio_read(path_, "value");
-	if (input == "0") return LOW;
-	else              return HIGH;
+	if (input == "0") return 0;
+	else              return 1;
 }
 
 int 
 trk::GPIO::
-value(GPIO_VALUE value)
+value(int value)
 {
     switch(value){
-    case HIGH: 
+    case 1: 
         return gpio_write(path_, "value", "1");
-    case LOW: 
+    case 0: 
         return gpio_write(path_, "value", "0");
     }
     return -1;
@@ -287,8 +287,8 @@ trk::OutputGPIO::
 int 
 trk::OutputGPIO::
 toggle_output(){
-    if ( value() == HIGH ) value(LOW);
-    else                   value(HIGH);
+    if ( value() == 1 ) value(0);
+    else                value(1);
     return 0;
 }
 
@@ -319,12 +319,12 @@ void*
 trk::OutputGPIO::
 threaded_toggle(void *attr){
 	OutputGPIO *gpio = static_cast<OutputGPIO*>(attr);
-	bool isHigh = (bool) gpio->value(); //find current value
+	int v = gpio->value(); //find current value
 	while(gpio->thread_running_){
-		if (isHigh)	gpio->value(HIGH);
-		else            gpio->value(LOW);
+		if (v == 0)	gpio->value(1);
+		else            gpio->value(0);
 		usleep(gpio->toggle_period_ * 500);
-		isHigh=!isHigh;
+		v = 1 - v;
 		if(gpio->toggle_number_ > 0 ) gpio->toggle_number_--;
 		if(gpio->toggle_number_ == 0) gpio->thread_running_ = false;
 	}

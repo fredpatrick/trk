@@ -39,7 +39,6 @@ namespace trk {
 class InputSensor;
 
 enum    GPIO_DIRECTION{ INPUT, OUTPUT };
-enum    GPIO_VALUE{ LOW=0, HIGH=1 };
 enum    GPIO_EDGE{ NONE, RISING, FALLING, BOTH };
 
 class GPIO {
@@ -50,12 +49,12 @@ class GPIO {
 
 	int number() { return number_; }
 
-	int         value(GPIO_VALUE v);
-	GPIO_VALUE  value();
+	int         value(int v);
+	int         value();
 
     private:
-	int             number_;
-	string          name_; 
+	int         number_;
+	string      name_; 
     protected:
 	int         export_gpio();
 	int         unexport_gpio();

@@ -17,22 +17,18 @@ BlockEvent(int sensor_fd)
     block_name_ = bn;
     delete bn;
     
-    read(sensor_fd, &nc, sizeof( int) );
-    char* bs = new char[nc];
-    read(sensor_fd, bs, nc);
-    block_status_ = bs;
-    delete bs;
+    read(sensor_fd, &block_state_, sizeof(int) );
 }
 
 trk::BlockEvent::
 BlockEvent(double          tm_event,
             const std::string& block_name,
-            const std::string& block_status)
+            const BLK_STATE&   block_state)
 {
     tag_          = "BLK";
     tm_event_     = tm_event;
     block_name_   = block_name;
-    block_status_ = block_status;
+    block_state_  = block_state;
     event_seq_n_++;
 }
 
@@ -46,9 +42,7 @@ write_event(int fd)
     int nc = block_name_.length() + 1;
     ns = write(fd, &nc, sizeof(int) );
     ns = write(fd, block_name_.c_str(), nc);
-    nc = block_status_.length() + 1;
-    ns = write(fd, &nc, sizeof(int) );
-    ns = write(fd, block_status_.c_str(), nc);
+    ns = write(fd, &block_state_, sizeof(int) );
 }
 
 void
@@ -58,7 +52,7 @@ print(int ntab)
     std::cout.width(ntab);
     std::cout << "| ";
     std::cout << "BlockEvent::" << block_name_ << " - " << 
-                                 block_status_ <<  " - " << 
+                                 block_state_ <<  " - " << 
                                  event_seq_n_ << " - " << tm_event_ << std::endl;
 }
 
@@ -69,9 +63,9 @@ block_name()
     return block_name_;
 }
 
-std::string
+trk::BLK_STATE
 trk::BlockEvent::
-block_status()
+block_state()
 {
-    return block_status_;
+    return block_state_;
 }

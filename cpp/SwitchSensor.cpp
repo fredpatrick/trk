@@ -42,7 +42,7 @@ event(int ierr, InputGPIO* gpio)
                                  ier << std::endl;
     n_event_++;
 
-    value_ = (int)gpio->value();
+    value_ = gpio->value();
     count_ = gpio->ev_count();
     tm_event_ = job_clock_->job_time();
 

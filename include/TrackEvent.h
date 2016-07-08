@@ -2,6 +2,7 @@
 #define TRK_TRACKEVENT_HH
 
 #include "InputEvent.h"
+#include "trkutl.h"
 
 namespace trk {
 
@@ -11,16 +12,16 @@ class TrackEvent : public InputEvent
         TrackEvent(int sensor_fd);
         TrackEvent(double tm_event,
                    const std::string& zone_name,
-                   const std::string& type);
+                   const TRK_STATE&   track_state);
         ~TrackEvent();
 
         int         write_event(int fd);
         void        print(int ntab);
         std::string zone_name();
-        std::string type();
+        TRK_STATE   track_state();
     private:
         std::string zone_name_;
-        std::string type_;
+        TRK_STATE   track_state_;
 
 };
 

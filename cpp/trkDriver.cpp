@@ -62,13 +62,13 @@ int main() {
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
     Zones zones;
-    std::cout << "trkDriver: Zone instaces created" << std::endl;
+    std::cout << "trkDriver: Zone instances created" << std::endl;
 
     zones.enable_sensors(sensor_fds[1], n_event);
-    std::cout << "trkDriver: Track  sensors created and activated" << std::endl;
+    std::cout << "trkDriver: Track  sensors created and activated" ;
     std::cout << zones << std::endl;
     Blocks blocks;
-    std::cout << "trkDriver: Block instaces created" << std::endl;
+    std::cout << "trkDriver: Block instances created";
     std::cout << blocks << std::endl;
 
     blocks.enable_sensors(sensor_fds[1], n_event);

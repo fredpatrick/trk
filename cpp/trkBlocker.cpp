@@ -12,17 +12,22 @@ int main()
     std::cout << "trkBlock: Assumes trkDriver is running and " <<
                    "has started BBB circuits" << std::endl;
 
-    Blocks* blockers =  new Blocks();
+    Blocks* blocks =  new Blocks();
 
     std::string blk_name;
     bool done = false;
     while (!done ) {
-        std::cout << "trkBlock: Enter Block name (O72B|O60B|Done):";
+        for ( int i = 0; i < blocks->n_block(); i++) {
+            std:: cout << "trkBlocker: " << blocks->blk_name(i) << 
+                                   " = " << blocks->get_state(i);
+        }
+        std::cout << std::endl;
+        std::cout << "trkBlocker: Enter Block name (O72B|O60B|Done):";
         std::cin >> blk_name;
         if ( blk_name == "Done") {
             done = true;
         } else {
-            bool ret = blockers->blockit(blk_name);
+            bool ret = blocks->blockit(blk_name);
             if ( !ret ) {
                 std::cout << "trkBlock: Couldn't set Block" << std::endl;
             }

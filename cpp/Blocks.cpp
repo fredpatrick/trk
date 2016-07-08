@@ -13,16 +13,14 @@ Blocks()
     GPIOConfig* gpio_config = GPIOConfig::instance();
     blk_names_ = gpio_config-> blk_names();
     for ( int i = 0; i < blk_names_.size(); i++) {
-        blocks_[i] = new Block(blk_names_[i]);
+        Block* b = new Block(blk_names_[i]);
+        blocks_.push_back(b);
         block_indexes_[blk_names_[i]] = i;
     }
 
     int blk_base = gpio_config->blk_base_addr();
     DemuxAddress* demux_address = DemuxAddress::instance();
-    demux_address->set(blk_base);
-    for ( int i = 0; i < blocks_.size(); i++) {
-        blocks_[ i ]->clear();
-    }
+    demux_address->set(blk_base);                             // CLR to J-K flipflop
 }
 
 trk::Blocks::
@@ -64,6 +62,13 @@ trk::Blocks::
 n_block() const
 { 
     return blocks_.size();
+}
+
+std::string
+trk::Blocks::
+blk_name(int i) const
+{
+    return blk_names_[i];
 }
 
 trk::BLK_STATE

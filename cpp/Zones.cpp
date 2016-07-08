@@ -11,9 +11,9 @@ Zones()
     gpio_config_ = GPIOConfig::instance();
     zone_names_ = gpio_config_->zone_names();
     for ( int i = 0; i < zone_names_.size(); i++) {
-        zones_[i] = new Zone(zone_names_[i]);
+        Zone* z  = new Zone(zone_names_[i]);
+        zones_.push_back(z);
         zone_indexes_[zone_names_[i]] = i;
-        std::cout << "Zones.ctor, i = " << i << ", " << zone_names_[i] << std::endl;
     }
 }
 
@@ -29,7 +29,7 @@ bool
 trk::Zones::
 enable_sensors(int sensor_fd, int& n_event)
 {
-    for ( int i = 0; i < 6; i++) {
+    for ( int i = 0; i < zones_.size(); i++) {
         zones_[ i ]->enable_sensor(sensor_fd, n_event);
     }
     return true;

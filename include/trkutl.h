@@ -8,7 +8,7 @@ namespace trk
 {
 
 enum SW_DIRECTION {THRU, OUT, NOVAL };
-enum TRK_STATE { ON, OFF };
+enum TRK_STATE { BUSY, IDLE };
 enum BLK_STATE { GO, STOP};
 
 enum TrackState { LowerLoopCW, LowerLoopCCW,
@@ -42,25 +42,25 @@ SWKey      get_switch();
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SWKey& kwy);
-}
-
-std::istream&
-operator>>( std::istream& is, trk::SW_DIRECTION& idirec);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec);
-
-std::istream&
-operator>>( std::istream& is, trk::TrackState& idirec);
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::TrackState& idirec);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate);
+}
+
+std::istream&
+operator>>( std::istream& is, trk::SW_DIRECTION& idirec);
+
+std::istream&
+operator>>( std::istream& is, trk::TrackState& idirec);
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::TrackState& idirec);
 
 
 #endif

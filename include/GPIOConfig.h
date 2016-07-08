@@ -60,7 +60,8 @@ class GPIOConfig {
         map<string, string>     address_pins_;
         map<SWKey, string>      switch_pins_;
         map<string, string>     track_sensor_pins_;
-        map<string, BLKData>   blocker_data_;
+        vector<string>          zone_names_;
+        map<string, BLKData>    blocker_data_;
         int                     blk_base_index_;
         string                  pcb_power_pin_;
         string                  brk_event_pin_;

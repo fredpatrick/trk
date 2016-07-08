@@ -34,13 +34,13 @@ int
 trk::EnablePCB::
 on()
 {
-    return gpio_pwr_->value(HIGH);
+    return gpio_pwr_->value(1);
 }
 
 int
 trk::EnablePCB::
 off()
 {
-    return gpio_pwr_->value(LOW);
+    return gpio_pwr_->value(0);
 }
 

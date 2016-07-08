@@ -14,7 +14,6 @@ EnableBreakEvent(int sensor_fd , int& n_event)
     gpio_brk_->edge_type(RISING);
     gpio_brk_->debounce_time(200);
     gpio_brk_->wait_for_edge(brk_event_sensor_);
-    std::cout << "EnableBreakEvent.ctor, Poll started on " << gpio_brk_->number() << std::endl;
 }
 
 trk::EnableBreakEvent::
