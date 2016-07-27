@@ -2,6 +2,7 @@
 #define TRK_ZONES_HH
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace trk {

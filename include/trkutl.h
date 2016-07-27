@@ -40,6 +40,8 @@ std::string get_yesno(const std::string& question);
 
 SWKey      get_switch();
 
+int         make_socket_server(int portno);
+
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::SWKey& kwy);
 
