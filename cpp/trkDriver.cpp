@@ -44,6 +44,8 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <pthread.h>
+
 #include "trkutl.h"
 #include "GPIO.h"
 #include "JobClock.h"
@@ -52,12 +54,16 @@
 #include "EnablePCB.h"
 #include "EnableBreakEvent.h"
 #include "EventFactory.h"
+#include "EventPipe.h"
+#include "EventSocketServer.h"
 #include "InputEvent.h"
 #include "Zones.h"
 #include "Blocks.h"
 #include "trkutl.h"
 
 using namespace trk;
+
+pthread_mutex_t write_event_ = PTHREAD_MUTEX_INITIALIZER;
 
 int main() {
 
@@ -66,20 +72,8 @@ int main() {
     JobClock* job_clock = trk::JobClock::instance();
     std::cout << *job_clock << std::endl;
 
-    int socket_fd = 0;
-    std::string yesno = "";
-    yesno = get_yesno( "Create socket for TCP connection?" );
-    if ( yesno == "yes" ) socket_fd = make_socket_server(17303);
-    if (  socket_fd ) {
-        double t0 = job_clock->base_time();
-        double t1 = job_clock->job_time();
-        write(socket_fd, &t0, sizeof(double) );
-        write(socket_fd, &t1, sizeof(double) );
-    }
-    
     EnablePCB* pcp = EnablePCB::instance();
-    std::cout << "Power controler created " << std::endl;
-
+    std::string yesno = "";
     yesno = get_yesno ( "trkDriver:Turn power on?" );
     if ( yesno == "no" ) {
         return 0;
@@ -100,33 +94,26 @@ int main() {
     }
     std::cout << switches << std::endl;
 
-    int sensor_fds[2];
-    if ( pipe( sensor_fds) == -1 ) {
-//  if ( pipe2( sensor_fds, O_NONBLOCK) == -1 ) {
-        perror("pipe");
-        return false;
-    }
-    std::cout << "trkDriver: got the pipe" << std::endl;
-    
+    EventPipe* efd         = new EventPipe();
+    EventSocketServer* ess = 0;
+    yesno = get_yesno( "Create socket for TCP connection?" );
+    if ( yesno == "yes" ) ess = new EventSocketServer(17303);
+
     int n_event = 0;            // when sensors write to sensor_fds[1], n_event is
                                 // incremented, when code trkDriver readfs from sensor_fds[0]
                                 // n_event is decremented until pipe is empty.
 
-    EnableBreakEvent* brk_event = new EnableBreakEvent(sensor_fds[1], n_event );
-    switches.enable_sensors(sensor_fds[1], n_event );
+    EnableBreakEvent* brk_event = new EnableBreakEvent(efd, n_event );
+    switches.enable_sensors(efd, n_event );
     std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
 
     Zones zones;
-    std::cout << "trkDriver: Zone instances created" << std::endl;
-
-    zones.enable_sensors(sensor_fds[1], n_event);
-    std::cout << "trkDriver: Track  sensors created and activated" ;
+    zones.enable_sensors(efd, n_event);
     std::cout << zones << std::endl;
-    Blocks blocks;
-    std::cout << "trkDriver: Block instances created";
-    std::cout << blocks << std::endl;
 
-    blocks.enable_sensors(sensor_fds[1], n_event);
+    Blocks blocks;
+    std::cout << blocks << std::endl;
+    blocks.enable_sensors(efd, n_event);
     std::cout << "trkDriver: Block sensors created and activated" << std::endl;
 
     EventFactory* event_factory = EventFactory::instance();
@@ -134,12 +121,18 @@ int main() {
     done = false;
     std::cout << "trkDriver: Entering event loop" << std::endl;
     while ( !done ) {
-        InputEvent* event = event_factory->get_next_event(sensor_fds[0]);
+        int ier = pthread_mutex_lock(&write_event_);
+        if ( ier != 0 ) std::cout << "trkDriver,event_loop, couldn't lock mutex, ier = " <<
+                                         ier << std::endl;
+        InputEvent* event = event_factory->get_next_event(efd);
+        ier = pthread_mutex_unlock(&write_event_);
+        if ( ier != 0 ) std::cout << "trkDriver,event_loop, couldn't unlock mutex, ier = " <<
+                                    ier << std::endl;
         while  ( n_event > 0 ) {
             std::cout << switches << zones << blocks << std::endl;
             if ( event == 0 ) {
                 std::cout << "trkDriver: Error getting next event" << std::endl;
-                done = false;
+                done = true;;
                 break;
             } else {
                 std::cout << "| trkDriver: " << event->tag() << 
@@ -148,9 +141,13 @@ int main() {
                     done = true;
                 }
                 event->print(0);
+                if ( ess != 0 ) {
+                    event->write_event(ess);
+                }
                 n_event--;
+                delete event;
                 if ( n_event > 0 ) {
-                    event = event_factory->get_next_event( sensor_fds[0] );
+                    event = event_factory->get_next_event( efd);
                 }
             }
         }

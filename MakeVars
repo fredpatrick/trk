@@ -7,15 +7,20 @@
 #PRJDIR   = /home/fredpatrick/wrk/trk
 PRJDIR    = $(HOME)/wrk/trk
 TRK_DIR  = $(PRJDIR)
+TRK_U_DIR = $(HOME)/wrk/trk_u
+
 
 TRK_LIB_DIR    = $(TRK_DIR)/lib
-ALL_LIB_DIRS   = $(TRK_LIB_DIR)
+TRK_U_LIB_DIR  = $(TRK_U_DIR)/lib
+
+ALL_LIB_DIRS   = $(TRK_LIB_DIR) $(TRK_U_LIB_DIR)
 
 TRK_VERSION     = $(shell tr b \. < $(TRK_DIR)/VERSION)
+TRK_U_VERSION     = $(shell tr b \. < $(TRK_U_DIR)/VERSION)
 
 CXX             = c++ 
 CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
-INCFLAGS        = -I.  -I$(TRK_DIR)/include
+INCFLAGS        = -I.  -I$(TRK_DIR)/include -I$(TRK_U_DIR)/include
 LIBFLAGS        = -shared -fPIC
 
 CPPFLAGS        =
@@ -32,5 +37,6 @@ MAKE_DEPS       = $(TRK_DIR)/admin/DotHDeps
 CONFLIBS        = -ldl -lm -lpthread
 
 LDLIBS          = -L$(TRK_LIB_DIR) -ltrk$(TRK_VERSION) \
+                  -L$(TRK_U_LIB_DIR) -ltrk_u$(TRK_U_VERSION) \
                   $(CONFLIBS)
 

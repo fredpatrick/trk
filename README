@@ -1,0 +1,9 @@
+trk and trk_u are two libraries in the trk project. The trk project
+exists to support a system for controling O-gauge model trains on 
+layouts that include custom electronics for interfacing remote track
+switches and other components to a BeagleBone Black Linux based
+computer. The trk library is specific to the BeagleBone Black while
+the trk_u library is intended to be portable between the BeagleBone 
+and an iMac OS X computer. Ultimately trk_u will provide a bridge 
+between trk applications on the BeagleBone and Qt apps running on
+the iMac. This project is very much in a state of flux.
