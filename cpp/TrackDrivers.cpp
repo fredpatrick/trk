@@ -42,34 +42,63 @@
  * 
  */
 
-#ifndef TRK_ZONE_HH
-#define TRK_ZONE_HH
+#include <iostream>
 
+#include "GPIOConfig.h"
+#include "TrackDrivers.h"
+#include "TrackDriver.h"
+#include "EventDevice.h"
 
-#include <string>
-#include "trkutl.h"
-
-namespace trk {
-
-class InputGPIO;
-class TrackSensor;
-class EventDevice;
-
-class Zone {
-    public:
-        Zone(const std::string& zone_name);
-        ~Zone();
-
-        bool            enable_sensor(EventDevice* efd, 
-                                      int&          n_event);
-        std::string     zone_name();
-        TRK_STATE       state();
-    private:
-        std::string     zone_name_;
-        InputGPIO*      track_gpio_;
-        TrackSensor*    track_sensor_;
-};
+trk::TrackDrivers::
+TrackDrivers()
+{
+    gpio_config_ = GPIOConfig::instance();
+    zone_names_ = gpio_config_->zone_names();
+    for ( int i = 0; i < zone_names_.size(); i++) {
+        TrackDriver* z  = new TrackDriver(zone_names_[i]);
+        zones_.push_back(z);
+        zone_indexes_[zone_names_[i]] = i;
+    }
+    previous_zones_[0] = entry("lowerloop", 0);
 
 }
 
-#endif
+trk::TrackDrivers::
+~TrackDrivers() {
+    for ( int i = 0; i < zone_names_.size(); i++) {
+        delete zones_[i];
+    }
+}
+
+
+bool
+trk::TrackDrivers::
+enable_sensors(EventDevice* efd )
+{
+    for ( int i = 0; i < zones_.size(); i++) {
+        zones_[ i ]->enable_sensor(efd);
+    }
+    return true;
+}
+
+int
+trk::TrackDrivers::
+n_zone() const
+{
+    return zones_.size();
+}
+
+trk::TRK_STATE
+trk::TrackDrivers::
+scan(int i) const
+{
+    return zones_[i]->scan();
+}
+
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const trk::TrackDrivers& zones)
+{
+    int n = zones.n_zone();
+    for ( int i = 0; i < n; i++) ostrm << zones.scan(i);
+    return ostrm;
+}

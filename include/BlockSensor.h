@@ -58,7 +58,6 @@ class BlockSensor : public InputSensor
 {
     public:
         BlockSensor( EventDevice*         efd, 
-                     int& n_event,
                      const std::string& blk_name);
         ~BlockSensor();
 
@@ -70,7 +69,6 @@ class BlockSensor : public InputSensor
 
     private:
         EventDevice*    efd_;
-        int&            n_event_;
         bool            ignore_event_;
         std::string     blk_name_;
 

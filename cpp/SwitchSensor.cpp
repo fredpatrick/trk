@@ -54,8 +54,7 @@
 trk::SwitchSensor::
 SwitchSensor( int                 sw_num, 
               const SW_DIRECTION& sw_direc, 
-              EventDevice*        efd, 
-              int&                n_event) : n_event_(n_event)
+              EventDevice*        efd)
 {
     job_clock_    = JobClock::instance();
     sw_direc_     = sw_direc;
@@ -87,7 +86,6 @@ event(int ierr, InputGPIO* gpio)
     if ( ier != 0 ) std::cout << "SwitchSensor.event, couldn't lock mutex, ier = " <<
                                  ier << std::endl;
     tm_event_ = job_clock_->job_time();
-    n_event_++;
 
     value_ = gpio->value();
     count_ = gpio->ev_count();

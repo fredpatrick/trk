@@ -53,8 +53,7 @@
 
 trk::BlockSensor::
 BlockSensor( EventDevice*       efd,
-             int&               n_event, 
-             const std::string& blk_name) : n_event_(n_event)
+             const std::string& blk_name)
 {
     job_clock_    = JobClock::instance();
     efd_          = efd;
@@ -87,7 +86,6 @@ event(int ierr, InputGPIO* gpio)
     if ( ier != 0 ) std::cout << "BlockSensor.event, couldn't lock mutex, ier = " <<
                                 ier << std::endl;
     tm_event_ = job_clock_->job_time();
-    n_event_++;
     value_ = gpio->value();
     BLK_STATE blk_status;
     if      ( value_ == 0 ) blk_status = GO;
@@ -95,7 +93,7 @@ event(int ierr, InputGPIO* gpio)
     count_ = gpio->ev_count();
     std::cout.width(50);
     std::cout << "| ";
-    std::cout << "BlockSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
+    std::cout << "BlockSensor.event, " << tm_event_ << std::endl;
 
     BlockEvent* blk_event = new BlockEvent(tm_event_, 
                                            blk_name_, 

@@ -58,7 +58,6 @@ class TrackSensor : public InputSensor
 {
     public:
         TrackSensor( EventDevice*       efd, 
-                     int&               n_event, 
                      const std::string& zone_name_);
         ~TrackSensor();
 
@@ -70,7 +69,6 @@ class TrackSensor : public InputSensor
 
     private:
         EventDevice* efd_;
-        int&         n_event_;
         bool         ignore_event_;
         std::string  zone_name_;
 

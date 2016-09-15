@@ -42,41 +42,58 @@
  * 
  */
 
-#ifndef TRK_BLOCK_HH
-#define TRK_BLOCK_HH
+#include "TrackDriver.h"
+#include "TrackSensor.h"
+#include "EventDevice.h"
+#include "GPIO.h"
+#include "GPIOConfig.h"
+#include <iostream>
 
-#include <string>
-#include "trkutl.h"
 
-namespace trk  
+trk::
+TrackDriver::TrackDriver(const std::string& zone_name)
 {
-    class DemuxAddress;;
-    class InputGPIO;
-    class BlockSensor;
-    class EventDevice;
+    track_sensor_ = 0;
 
-
-    class Block
-    {
-        public:
-            Block(const std::string& blk_name);
-            ~Block();
-
-            bool        enable_sensor( EventDevice* efd, int& n_event);
-            bool        set();
-            bool        clear();
-            BLK_STATE   state();
-            std::string blk_name();
-
-        private:
-            std::string     blk_name_;
-            int             blk_index_;
-            int             blk_base_addr_;
-            InputGPIO*      gpio_;
-            BlockSensor*    blk_sensor_;
-
-            DemuxAddress*   demux_address_;
-    };
+    zone_name_ = zone_name;
+    GPIOConfig* gpio_config = GPIOConfig::instance();
+    track_gpio_  = gpio_config->track_gpio(zone_name_);
+    track_sensor_ = 0;
 }
 
-#endif
+trk::TrackDriver::
+~TrackDriver()
+{
+//  std::cout << "TrackDriver.dtor" << std::endl;
+    if ( track_sensor_) track_sensor_->ignore_event(true);
+    delete track_gpio_;
+}
+
+bool
+trk::TrackDriver::
+enable_sensor(EventDevice* efd)
+{
+
+    track_sensor_= new TrackSensor(efd, zone_name_);
+    track_gpio_->edge_type(BOTH);
+    track_gpio_->debounce_time(200);
+    track_gpio_->wait_for_edge(track_sensor_);
+
+    return true;
+}
+
+trk::TRK_STATE
+trk::TrackDriver::
+scan()
+{
+    int v = track_gpio_->value();
+    if ( v == 0 ) return IDLE;
+    else          return BUSY;
+}
+
+std::string
+trk::TrackDriver::
+zone_name()
+{
+    return zone_name_;
+}

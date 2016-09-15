@@ -42,38 +42,81 @@
  * 
  */
 
-#ifndef TRK_SWITCHES_HH
-#define TRK_SWITCHES_HH
+#include <iostream>
 
-#include "trkutl.h"
-#include "Switch.h"
+#include "BlockDrivers.h"
+#include "BlockDriver.h"
 
-namespace trk {
+#include "DemuxAddress.h"
+#include "EventDevice.h"
+#include "GPIOConfig.h"
 
-class EventDevice;
+trk::BlockDrivers::
+BlockDrivers()
+{
+    GPIOConfig* gpio_config = GPIOConfig::instance();
+    blk_names_ = gpio_config-> blk_names();
+    for ( int i = 0; i < blk_names_.size(); i++) {
+        BlockDriver* b = new BlockDriver(blk_names_[i]);
+        blocks_.push_back(b);
+        block_indexes_[blk_names_[i]] = i;
+    }
 
-class Switches {
-    public:
-        Switches();
-        ~Switches();
-
-        bool        enable_sensors(EventDevice* efd,
-                                   int&         n_event);
-        void        set_direction(const SWKey& key);
-        bool        manual_set();
-        SWKey       get_switch_key();
-        Switch*     swtch(int i) const;
-
-        void        scan(SW_DIRECTION* sw_state);
-        void        list_state();
-    private:
-        Switch*     switch_[6];
-};
-
-
-std::ostream&
-operator<<(std::ostream& ostrm, const trk::Switches& switches);
+    int blk_base = gpio_config->blk_base_addr();
+    DemuxAddress* demux_address = DemuxAddress::instance();
+    demux_address->set(blk_base);                             // CLR to J-K flipflop
 }
 
+trk::BlockDrivers::
+~BlockDrivers()
+{
+    for ( int i = 0; i < blk_names_.size(); i++) {
+        delete blocks_[i];
+    }
+}
 
-#endif
+bool
+trk::BlockDrivers::
+enable_sensors(EventDevice* efd)
+{
+    for ( int i = 0; i < blocks_.size(); i++) {
+        blocks_[ i ]->enable_sensor(efd);
+    }
+    return true;
+}
+
+void
+trk::BlockDrivers::
+set(const std::pair<int, int>& item)
+{
+    blocks_[item.first]->set(item.second);
+}
+
+trk::BLK_STATE
+trk::BlockDrivers::
+scan(int i) const
+{
+    return blocks_[i]->scan();
+}
+
+int
+trk::BlockDrivers::
+n_block() const
+{ 
+    return blocks_.size();
+}
+
+std::string
+trk::BlockDrivers::
+blk_name(int i) const
+{
+    return blk_names_[i];
+}
+
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const trk::BlockDrivers& blocks)
+{
+    int n = blocks.n_block();
+    for ( int i = 0; i < n; i++) ostrm << blocks.scan(i);
+    return ostrm;
+}

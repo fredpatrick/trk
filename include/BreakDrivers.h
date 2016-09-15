@@ -42,77 +42,31 @@
  * 
  */
 
-#include "Block.h"
-#include "BlockSensor.h"
-#include "DemuxAddress.h"
-#include "EventDevice.h"
+#ifndef TRK_BREAKDRIVERS_HH
+#define TRK_BREAKDRIVERS_HH
+
 #include "GPIO.h"
-#include "GPIOConfig.h"
-#include <iostream>
 
-trk::Block::
-Block(const std::string& blk_name)
-{
-    blk_name_ = blk_name;
+namespace trk {
 
-    demux_address_ = DemuxAddress::instance();
-    GPIOConfig* gpio_config    = GPIOConfig::instance();
-    blk_base_addr_ = gpio_config->blk_base_addr();
-    blk_index_     = gpio_config->blk_index(blk_name);
+class BreakSensor;
+class EventDevice;
 
-    gpio_           = gpio_config->blk_gpio(blk_name);
-    blk_sensor_     = 0;
+class BreakDrivers {
+
+    public:
+        BreakDrivers();
+        bool enable_sensors(EventDevice* efd );
+        ~BreakDrivers();
+
+    private:
+        static BreakDrivers*  instance_;
+        InputGPIO*            gpio_brk_;
+        BreakSensor*       brk_event_sensor_;
+};
+
+
 }
 
-trk::Block::
-~Block() 
-{
-    if (blk_sensor_ ) blk_sensor_->ignore_event();
-    delete gpio_;
-}
+#endif
 
-bool
-trk::Block::
-enable_sensor(EventDevice* efd, 
-              int&         n_event)
-{
-
-    blk_sensor_ = new BlockSensor(efd, n_event, blk_name_);
-    gpio_->edge_type(BOTH);
-    gpio_->debounce_time(200);
-    gpio_->wait_for_edge(blk_sensor_);
-
-    return true;
-}
-
-bool 
-trk::Block::
-set()
-{
-    int blk_addr = blk_base_addr_ + 1 + blk_index_;
-    demux_address_->set(blk_addr);
-}
-
-bool 
-trk::Block::
-clear()
-{
-    int blk_addr = blk_base_addr_ + 1 + blk_index_;
-    demux_address_->set(blk_addr);
-}
-
-trk::BLK_STATE
-trk::Block::
-state()
-{
-    int v = gpio_->value();
-    if ( v == 0 ) return GO;
-    else          return STOP;
-}
-
-std::string
-trk::Block::
-blk_name()
-{
-    return blk_name_;
-}

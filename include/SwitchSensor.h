@@ -59,8 +59,7 @@ class SwitchSensor : public InputSensor
     public:
         SwitchSensor( int                 sw_num,  
                       const SW_DIRECTION& sw_direc, 
-                      EventDevice*        efd, 
-                      int&                n_nevent);
+                      EventDevice*        efd);
         ~SwitchSensor();
 
         void event (int ierr, InputGPIO* gpio);
@@ -73,7 +72,6 @@ class SwitchSensor : public InputSensor
         SW_DIRECTION    sw_direc_;
         int             sw_num_;
         EventDevice*    efd_;
-        int&            n_event_;
         bool            ignore_event_;
 
         int             value_;

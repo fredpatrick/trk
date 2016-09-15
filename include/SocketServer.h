@@ -42,90 +42,35 @@
  * 
  */
 
-#include <iostream>
+#ifndef TRK_SOCKETSERVER_HH
+#define TRK_SOCKETSERVER_HH
 
-#include "Blocks.h"
-#include "Block.h"
-
-#include "DemuxAddress.h"
 #include "EventDevice.h"
-#include "GPIOConfig.h"
+#include <string>
+#include <pthread.h>
 
-trk::Blocks::
-Blocks()
+namespace trk
 {
-    GPIOConfig* gpio_config = GPIOConfig::instance();
-    blk_names_ = gpio_config-> blk_names();
-    for ( int i = 0; i < blk_names_.size(); i++) {
-        Block* b = new Block(blk_names_[i]);
-        blocks_.push_back(b);
-        block_indexes_[blk_names_[i]] = i;
-    }
+    class CmdServer;
+    class SocketServer: public EventDevice
+    {
+        public:
+            SocketServer(int portno);
+            ~SocketServer();
 
-    int blk_base = gpio_config->blk_base_addr();
-    DemuxAddress* demux_address = DemuxAddress::instance();
-    demux_address->set(blk_base);                             // CLR to J-K flipflop
-}
+            int          write(EventBuffer* ebfr);
+            EventBuffer* read();
+            int          wait_for_packet(CmdServer* cmd_server);
+            int          wait_for_exit();
+            int          wait_for_packet();
+        private:
+            int         socket_fd_;
+            int         listen_fd_;
 
-trk::Blocks::
-~Blocks()
-{
-    for ( int i = 0; i < blk_names_.size(); i++) {
-        delete blocks_[i];
-    }
+            static void* threaded_poll(void* attr);
+            pthread_t    packet_thread_;
+            bool         thread_running_;
+            CmdServer*   cmd_server_;
+    };
 }
-
-bool
-trk::Blocks::
-enable_sensors(EventDevice* efd, int& n_event)
-{
-    for ( int i = 0; i < blocks_.size(); i++) {
-        blocks_[ i ]->enable_sensor(efd, n_event);
-    }
-    return true;
-}
-
-bool
-trk::Blocks::
-blockit( const std::string& blk_name)
-{
-    int i = block_indexes_[blk_name];
-    return blocks_[i]->set();
-}
-
-bool
-trk::Blocks::
-clearit( const std::string& blk_name)
-{
-    int i = block_indexes_[blk_name];
-    return blocks_[i]->clear();
-}
-
-int
-trk::Blocks::
-n_block() const
-{ 
-    return blocks_.size();
-}
-
-std::string
-trk::Blocks::
-blk_name(int i) const
-{
-    return blk_names_[i];
-}
-
-trk::BLK_STATE
-trk::Blocks::
-get_state(int i) const
-{
-    return blocks_[ i ]->state();
-}
-
-std::ostream&
-trk::operator<<( std::ostream& ostrm, const trk::Blocks& blocks)
-{
-    int n = blocks.n_block();
-    for ( int i = 0; i < n; i++) ostrm << blocks.get_state(i);
-    return ostrm;
-}
+#endif

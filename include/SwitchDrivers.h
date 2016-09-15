@@ -42,27 +42,37 @@
  * 
  */
 
-#include "GPIOConfig.h"
-#include "EnableBreakEvent.h"
-#include "BreakSensor.h"
-#include "EventDevice.h"
+#ifndef TRK_SWITCHDRIVERS_HH
+#define TRK_SWITCHDRIVERS_HH
 
-using namespace trk;
+#include <utility>
 
-trk::EnableBreakEvent::
-EnableBreakEvent(EventDevice* efd , int& n_event)
-{
-    GPIOConfig* gpiocfg = GPIOConfig::instance();
-    gpio_brk_ = gpiocfg->brk_event_gpio();
-    brk_event_sensor_ = new BreakSensor( efd, n_event);
-    gpio_brk_->edge_type(RISING);
-    gpio_brk_->debounce_time(200);
-    gpio_brk_->wait_for_edge(brk_event_sensor_);
+#include "trkutl.h"
+#include "SwitchDriver.h"
+
+namespace trk {
+
+class EventDevice;
+
+class SwitchDrivers {
+    public:
+        SwitchDrivers();
+        ~SwitchDrivers();
+
+        bool        enable_sensors(EventDevice* efd);
+        void        set(const std::pair<int, int>& item);
+        int         scan(int i);
+        SwitchDriver*     swtch(int i) const;
+        void        list_state();
+    private:
+        static SwitchDrivers* instance_;
+        SwitchDriver*         switch_[6];
+};
+
+
+std::ostream&
+operator<<(std::ostream& ostrm, const trk::SwitchDrivers& switches);
 }
 
-trk::EnableBreakEvent::
-~EnableBreakEvent()
-{
-    delete gpio_brk_;
-}
 
+#endif

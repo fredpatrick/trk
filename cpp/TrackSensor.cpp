@@ -52,8 +52,7 @@
 
 trk::TrackSensor::
 TrackSensor( EventDevice*       efd,
-             int&               n_event, 
-             const std::string& zone_name) : n_event_(n_event)
+             const std::string& zone_name) 
 {
     job_clock_    = JobClock::instance();
     efd_          = efd;
@@ -86,7 +85,6 @@ event(int ierr, InputGPIO* gpio)
     if ( ier != 0 ) std::cout << "TrackSensor.event, couldn't lock mutex, ier = " << 
                                 ier << std::endl;
     tm_event_ = job_clock_->job_time();
-    n_event_++;
     value_ = gpio->value();
     TRK_STATE track_state;
     if      ( value_ == 0) track_state = IDLE;
@@ -94,7 +92,7 @@ event(int ierr, InputGPIO* gpio)
     count_ = gpio->ev_count();
     std::cout.width(50);
     std::cout << "| ";
-    std::cout << "TrackSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
+    std::cout << "TrackSensor.event, " << tm_event_ << std::endl;
     TrackEvent* trk_event = new TrackEvent(tm_event_, 
                                            zone_name_, 
                                            track_state);

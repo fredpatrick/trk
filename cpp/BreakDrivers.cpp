@@ -42,39 +42,33 @@
  * 
  */
 
-#ifndef TRK_BREAKSENSOR_HH
-#define TRK_BREAKSENSOR_HH
-
-#include "InputSensor.h"
-#include "GPIO.h"
 #include "GPIOConfig.h"
+#include "BreakDrivers.h"
+#include "BreakSensor.h"
+#include "EventDevice.h"
 
-namespace trk {
+using namespace trk;
 
-class JobClock;
-class EventDevice;
-
-class BreakSensor : public InputSensor
+trk::BreakDrivers::
+BreakDrivers()
 {
-    public:
-        BreakSensor( EventDevice* efd);
-        ~BreakSensor();
-
-        void event (int ierr, InputGPIO* gpio);
-        int     value();
-        int     count();
-        double  timeofday();
-
-    private:
-        EventDevice*    efd_;
-
-        int             value_;
-        int             count_;
-        double          tm_event_;
-
-        JobClock*       job_clock_;
-};
-
 }
 
-#endif
+bool
+trk::BreakDrivers::
+enable_sensors(EventDevice* efd )
+{
+    GPIOConfig* gpiocfg = GPIOConfig::instance();
+    gpio_brk_ = gpiocfg->brk_event_gpio();
+    brk_event_sensor_ = new BreakSensor( efd);
+    gpio_brk_->edge_type(RISING);
+    gpio_brk_->debounce_time(200);
+    gpio_brk_->wait_for_edge(brk_event_sensor_);
+}
+
+trk::BreakDrivers::
+~BreakDrivers()
+{
+    delete gpio_brk_;
+}
+

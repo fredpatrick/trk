@@ -42,39 +42,40 @@
  * 
  */
 
-#ifndef TRK_BREAKSENSOR_HH
-#define TRK_BREAKSENSOR_HH
+#ifndef TRK_BLOCKDRIVER_HH
+#define TRK_BLOCKDRIVER_HH
 
-#include "InputSensor.h"
-#include "GPIO.h"
-#include "GPIOConfig.h"
+#include <string>
+#include "trkutl.h"
 
-namespace trk {
-
-class JobClock;
-class EventDevice;
-
-class BreakSensor : public InputSensor
+namespace trk  
 {
-    public:
-        BreakSensor( EventDevice* efd);
-        ~BreakSensor();
+    class DemuxAddress;;
+    class InputGPIO;
+    class BlockSensor;
+    class EventDevice;
 
-        void event (int ierr, InputGPIO* gpio);
-        int     value();
-        int     count();
-        double  timeofday();
 
-    private:
-        EventDevice*    efd_;
+    class BlockDriver
+    {
+        public:
+            BlockDriver(const std::string& blk_name);
+            ~BlockDriver();
 
-        int             value_;
-        int             count_;
-        double          tm_event_;
+            bool        enable_sensor( EventDevice* efd);
+            void        set(int v);
+            BLK_STATE   scan();
+            std::string blk_name();
 
-        JobClock*       job_clock_;
-};
+        private:
+            std::string     blk_name_;
+            int             blk_index_;
+            int             blk_base_addr_;
+            InputGPIO*      gpio_;
+            BlockSensor*    blk_sensor_;
 
+            DemuxAddress*   demux_address_;
+    };
 }
 
 #endif

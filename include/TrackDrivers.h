@@ -42,40 +42,46 @@
  * 
  */
 
-#ifndef TRK_SWITCH_HH
-#define TRK_SWITCH_HH
+#ifndef TRK_TRACKDRIVERS_HH
+#define TRK_TRACKDRIVERS_HH
 
-#include "trkutl.h"
+#include <map>
+#include <vector>
+#include <string>
 
 namespace trk {
 
-class InputGPIO;
 class GPIOConfig;
-class SwitchSensor;
-class DemuxAddress;
+class TrackDriver;
 class EventDevice;
 
-class Switch {
+class TrackDrivers {
     public:
-        Switch(int sw_num);
-        ~Switch();
+        TrackDrivers();
+        ~TrackDrivers();
 
-        bool            enable_sensors(EventDevice* efd, 
-                                       int&         n_event);
-        bool            set_direction(const SW_DIRECTION& sw_direc);
-        void sensor_event(int value, int cout, const SW_DIRECTION& sw_direc);
-        SW_DIRECTION    state();
-        int             sw_num();
+        bool      enable_sensors(EventDevice* efd);
+        int       n_zone() const;
+        TRK_STATE scan(int i ) const;
+
     private:
-        GPIOConfig*     gpio_config_;
-        int             sw_num_;
-        SW_DIRECTION    sw_direc_;
-        InputGPIO*      gpio_thru_;
-        InputGPIO*      gpio_out_;
-        SwitchSensor*   switch_sensor_thru_;
-        SwitchSensor*   switch_sensor_out_;
-        DemuxAddress*   demux_address_;
-};
+        std::map<std::string, int>    zone_indexes_;;
+        std::vector<std::string>      zone_names_;
+        std::vector<TrackDriver*>              zones_;
+
+        GPIOConfig* gpio_config_;
+        struct entry {
+            entry() {}
+            entry(const std::string& a, int c): alpha(a), cw0(c) {}
+            std::string alpha;
+            int         cw0;
+            };
+        entry previous_zones_[8];
+}; 
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::TrackDrivers& zones);
+
 
 }
 

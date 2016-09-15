@@ -47,12 +47,13 @@
 
 #include "BreakSensor.h"
 #include "BreakEvent.h"
+#include "Drivers.h"
+#include "EnablePCB.h"
 #include "EventDevice.h"
 #include "JobClock.h"
 
 trk::BreakSensor::
-BreakSensor( EventDevice* efd,
-             int&         n_event) : n_event_(n_event)
+BreakSensor( EventDevice* efd)
 {
     job_clock_  = JobClock::instance();
     efd_        = efd;
@@ -73,18 +74,21 @@ event(int ierr, InputGPIO* gpio)
     if (ier != 0 ) std::cout << "BreakSensor.event, couldn't lock mutex, ier = " <<
                                  ier << std::endl;
     tm_event_ = job_clock_->job_time();
-    n_event_++;
     value_ = gpio->value();
     count_ = gpio->ev_count();
     std::cout.width(50);
     std::cout << "| ";
-    std::cout << "BreakSensor.event. n_event = " << n_event_ << " - " << tm_event_ << std::endl;
+    std::cout << "BreakSensor.event, " << tm_event_ << std::endl;
     BreakEvent* brk_event = new BreakEvent(tm_event_);
     brk_event->write_event(efd_);
     brk_event->print(50);
     ier = pthread_mutex_unlock(&write_event_);
     if (ier != 0 ) std::cout << "BreakSensor.event, couldn't unlock mutex, ier = " <<
                                  ier << std::endl;
+    Drivers* drivers_ = Drivers::instance();
+    delete drivers_;
+    EnablePCB::instance()->off();
+    exit(0);
 }
 
 int

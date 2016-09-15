@@ -42,39 +42,40 @@
  * 
  */
 
-#ifndef TRK_BREAKSENSOR_HH
-#define TRK_BREAKSENSOR_HH
+#ifndef TRK_CMDSERVER_HH
+#define TRK_CMDSERVER_HH
 
-#include "InputSensor.h"
-#include "GPIO.h"
-#include "GPIOConfig.h"
+#include <string>
+#include <utility>
+#include <iostream>
+#include <cstdlib>
 
 namespace trk {
+    class Drivers;
+    class BlockDrivers;
+    class BreakDrivers;
+    class SwitchDrivers;
+    class TrackDrivers;
+    class EventDevice;
+    class SocketServer;
 
-class JobClock;
-class EventDevice;
+    class CmdServer {
 
-class BreakSensor : public InputSensor
-{
-    public:
-        BreakSensor( EventDevice* efd);
-        ~BreakSensor();
+        public:
+            CmdServer(SocketServer* ss);
+            ~CmdServer();
 
-        void event (int ierr, InputGPIO* gpio);
-        int     value();
-        int     count();
-        double  timeofday();
+            int             enable();
+            void            packet(int ierr);
+        private:
+            Drivers*        drivers_;
+            BlockDrivers*   block_drivers_;
+            BreakDrivers*   break_drivers_;
+            SwitchDrivers*  switch_drivers_;
+            TrackDrivers*   track_drivers_;
 
-    private:
-        EventDevice*    efd_;
-
-        int             value_;
-        int             count_;
-        double          tm_event_;
-
-        JobClock*       job_clock_;
-};
-
+            SocketServer*   ss_;
+            EventDevice*    event_fd_;
+    };
 }
-
 #endif

@@ -47,19 +47,11 @@
 #include <pthread.h>
 
 #include "trkutl.h"
-#include "GPIO.h"
 #include "JobClock.h"
-#include "Switches.h"
-#include "DemuxAddress.h"
+#include "CmdServer.h"
 #include "EnablePCB.h"
-#include "EnableBreakEvent.h"
-#include "EventFactory.h"
-#include "EventPipe.h"
-#include "EventSocketServer.h"
-#include "InputEvent.h"
-#include "Zones.h"
-#include "Blocks.h"
-#include "trkutl.h"
+#include "SocketServer.h"
+#include "Drivers.h"
 
 using namespace trk;
 
@@ -73,91 +65,13 @@ int main() {
     std::cout << *job_clock << std::endl;
 
     EnablePCB* pcp = EnablePCB::instance();
-    std::string yesno = "";
-    yesno = get_yesno ( "trkDriver:Turn power on?" );
-    if ( yesno == "no" ) {
-        return 0;
-    } else if ( yesno == "yes" ) {
-         pcp->on();
-    }
+    pcp->on();
 
-    SW_DIRECTION sw_state[6];
-    Switches switches;
-    std::cout << switches << std::endl;
-    std::cout << "trkDriver: Set initial switch positions" << std::endl;
-    bool done = false;
-    while ( !done) {
-        switches.scan(sw_state);
-        for (int i = 0; i < 6; i++) std::cout << sw_state[i] << " ";
-        std::cout << std::endl;
-        done = switches.manual_set();
-    }
-    std::cout << switches << std::endl;
-
-    EventPipe* efd         = new EventPipe();
-    EventSocketServer* ess = 0;
-    yesno = get_yesno( "Create socket for TCP connection?" );
-    if ( yesno == "yes" ) ess = new EventSocketServer(17303);
-
-    int n_event = 0;            // when sensors write to sensor_fds[1], n_event is
-                                // incremented, when code trkDriver readfs from sensor_fds[0]
-                                // n_event is decremented until pipe is empty.
-
-    EnableBreakEvent* brk_event = new EnableBreakEvent(efd, n_event );
-    switches.enable_sensors(efd, n_event );
-    std::cout << "trkDriver: Switch sensors created and activated" << std::endl;
-
-    Zones zones;
-    zones.enable_sensors(efd, n_event);
-    std::cout << zones << std::endl;
-
-    Blocks blocks;
-    std::cout << blocks << std::endl;
-    blocks.enable_sensors(efd, n_event);
-    std::cout << "trkDriver: Block sensors created and activated" << std::endl;
-
-    EventFactory* event_factory = EventFactory::instance();
-    InputEvent*   event;
-    done = false;
-    std::cout << "trkDriver: Entering event loop" << std::endl;
-    while ( !done ) {
-        int ier = pthread_mutex_lock(&write_event_);
-        if ( ier != 0 ) std::cout << "trkDriver,event_loop, couldn't lock mutex, ier = " <<
-                                         ier << std::endl;
-        InputEvent* event = event_factory->get_next_event(efd);
-        ier = pthread_mutex_unlock(&write_event_);
-        if ( ier != 0 ) std::cout << "trkDriver,event_loop, couldn't unlock mutex, ier = " <<
-                                    ier << std::endl;
-        while  ( n_event > 0 ) {
-            std::cout << switches << zones << blocks << std::endl;
-            if ( event == 0 ) {
-                std::cout << "trkDriver: Error getting next event" << std::endl;
-                done = true;;
-                break;
-            } else {
-                std::cout << "| trkDriver: " << event->tag() << 
-                                " received at " << *job_clock << std::endl;
-                if ( event->tag() == "BRK" ) {
-                    done = true;
-                }
-                event->print(0);
-                if ( ess != 0 ) {
-                    event->write_event(ess);
-                }
-                n_event--;
-                delete event;
-                if ( n_event > 0 ) {
-                    event = event_factory->get_next_event( efd);
-                }
-            }
-        }
-    }
-
-    delete brk_event;
-//  delete switches;
-    pcp->off();
-    delete pcp;
-    DemuxAddress* da = DemuxAddress::instance();
-    delete da;
+    Drivers* drivers_ = Drivers::instance();
+    SocketServer* ess = 0;
+    ess = new SocketServer(17303);
+    drivers_->enable(ess);
+    CmdServer* cms = new CmdServer(ess);
+    cms->enable();
     return 0;
 }

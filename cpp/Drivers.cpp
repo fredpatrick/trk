@@ -42,41 +42,78 @@
  * 
  */
 
-#ifndef TRK_ZONES_HH
-#define TRK_ZONES_HH
+#include "Drivers.h"
+#include "BlockDrivers.h"
+#include "BreakDrivers.h"
+#include "SwitchDrivers.h"
+#include "TrackDrivers.h"
+#include "EventDevice.h"
 
-#include <map>
-#include <vector>
-#include <string>
+trk::Drivers* trk::Drivers::instance_ = 0;
 
-namespace trk {
-
-class GPIOConfig;
-class Zone;
-class EventDevice;
-
-class Zones {
-    public:
-        Zones();
-        ~Zones();
-
-        bool      enable_sensors(EventDevice* efd, 
-                                 int&         n_event);
-        int       n_zone() const;
-        TRK_STATE get_state(int i ) const;
-
-    private:
-        std::map<std::string, int>    zone_indexes_;;
-        std::vector<std::string>      zone_names_;
-        std::vector<Zone*>              zones_;
-
-        GPIOConfig* gpio_config_;
-}; 
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::Zones& zones);
-
-
+trk::Drivers*
+trk::Drivers::
+instance()
+{
+    if ( !instance_ ) {
+        instance_ = new Drivers();
+    }
+    return instance_;
 }
 
-#endif
+trk::Drivers::
+Drivers()
+{
+    block_drivers_ = new BlockDrivers();
+    break_drivers_  = new BreakDrivers();
+    switch_drivers_ = new SwitchDrivers();
+    track_drivers_  = new TrackDrivers();
+}
+
+trk::Drivers::
+~Drivers()
+{
+    delete block_drivers_;
+    delete break_drivers_;
+    delete switch_drivers_;
+    delete track_drivers_;
+}
+
+void
+trk::Drivers::
+enable(EventDevice* efd)
+{
+    break_drivers_->enable_sensors(efd);
+    block_drivers_->enable_sensors(efd);
+    switch_drivers_->enable_sensors(efd);
+    track_drivers_->enable_sensors(efd);
+}
+
+trk::BreakDrivers*
+trk::Drivers::
+break_drivers()
+{
+    return break_drivers_;
+}
+
+trk::BlockDrivers*
+trk::Drivers::
+block_drivers()
+{
+    return block_drivers_;
+}
+
+trk::SwitchDrivers*
+trk::Drivers::
+switch_drivers()
+{
+    return switch_drivers_;
+}
+
+trk::TrackDrivers*
+trk::Drivers::
+track_drivers()
+{
+    return track_drivers_;
+}
+

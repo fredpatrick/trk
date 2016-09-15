@@ -42,29 +42,44 @@
  * 
  */
 
-#ifndef TRK_ENABLEBREAKEVENT_HH
-#define TRK_ENABLEBREAKEVENT_HH
+#ifndef TRK_BLOCKDRIVERS_HH
+#define TRK_BLOCKDRIVERS_HH
 
-#include "GPIO.h"
+#include <map>
+#include <utility>
+#include <vector>
+#include <string>
+#include <iostream>
 
-namespace trk {
+#include "trkutl.h"
 
-class BreakSensor;
-class EventDevice;
+namespace trk
+{
+    class BlockDriver;
+    class EventDevice;
 
-class EnableBreakEvent {
+    class BlockDrivers
+    {
+        public:
+            BlockDrivers();
+            ~BlockDrivers();
 
-    public:
-        EnableBreakEvent(EventDevice* efd , int& n_event);
-        ~EnableBreakEvent();
+            bool        enable_sensors(EventDevice* efd);
+            void        set(const std::pair<int,int>& item);
+            BLK_STATE   scan(int i) const;
 
-    private:
-        InputGPIO*            gpio_brk_;
-        BreakSensor*       brk_event_sensor_;
-};
+            int         n_block() const;
+            std::string blk_name(int i) const;
 
+        private:
+            std::vector<std::string>    blk_names_;
+            std::map<std::string, int > block_indexes_;
+            std::vector<BlockDriver*>   blocks_;
+    };
+
+std::ostream&
+operator<<( std::ostream& ostrm, const trk::BlockDrivers& blocks);
 
 }
 
 #endif
-

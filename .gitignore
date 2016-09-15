@@ -8,7 +8,4 @@ cpp/tmp
 include/tmp
 bin/trkClear
 bin/trkDriver
-bin/trkScanner
-bin/trkSwitcher
-bin/trkBlocker
 bin/listConfig

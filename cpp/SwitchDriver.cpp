@@ -42,7 +42,7 @@
  * 
  */
 
-#include "Switch.h"
+#include "SwitchDriver.h"
 #include "SwitchSensor.h"
 #include "DemuxAddress.h"
 #include "EventDevice.h"
@@ -51,10 +51,10 @@
 
 
 trk::
-Switch::Switch(int sw_num)
+SwitchDriver::SwitchDriver(int sw_num)
 {
     if ( sw_num < 0 || sw_num > 5) {
-        std::cout << "Switch.ctor, WARNING sw_num = " << sw_num << 
+        std::cout << "SwitchDriver.ctor, WARNING sw_num = " << sw_num << 
                                          " OUT OF RANGE" << std::endl;
         //throw ....
     }
@@ -64,19 +64,19 @@ Switch::Switch(int sw_num)
     demux_address_ = DemuxAddress::instance();
 
     gpio_config_ = GPIOConfig::instance();
-//  std::cout << "Switch.ctor" << std::endl;
+//  std::cout << "SwitchDriver.ctor" << std::endl;
     sw_num_ = sw_num;
     SWKey keythru = {sw_num, THRU};
     gpio_thru_  = gpio_config_->switch_gpio(keythru);
     SWKey keyout = {sw_num, OUT};
     gpio_out_   = gpio_config_->switch_gpio(keyout);
-//  std:cout << "Switch.ctor: Got the gpios" << endl;
+//  std:cout << "SwitchDriver.ctor: Got the gpios" << endl;
 }
 
-trk::Switch::
-~Switch()
+trk::SwitchDriver::
+~SwitchDriver()
 {
-//  std::cout << "Switch.dtor" << std::endl;
+//  std::cout << "SwitchDriver.dtor" << std::endl;
     if ( switch_sensor_thru_) switch_sensor_thru_->ignore_event(true);
     if ( switch_sensor_out_ ) switch_sensor_out_->ignore_event(true);
     delete gpio_thru_;
@@ -84,53 +84,50 @@ trk::Switch::
 }
 
 bool
-trk::Switch::
-enable_sensors(EventDevice* efd, int& n_event)
+trk::SwitchDriver::
+enable_sensors(EventDevice* efd)
 {
 
     switch_sensor_thru_ = new SwitchSensor(sw_num_, 
                                            THRU, 
-                                           efd, 
-                                           n_event);
+                                           efd);
     gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(switch_sensor_thru_);
-//  std::cout << "Switch.ctor, Poll started on " << gpio_thru_->number() << 
+//  std::cout << "SwitchDriver.ctor, Poll started on " << gpio_thru_->number() << 
 //                                      " thru position" << endl;
 
     switch_sensor_out_ = new SwitchSensor(sw_num_, 
                                           OUT, 
-                                          efd, 
-                                          n_event);
+                                          efd);
     gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
     gpio_out_->wait_for_edge(switch_sensor_out_);
-//  std::cout << "Switch.ctor, Poll started on " << gpio_out_->number() << 
-//                                      " out position" << endl;
-    return true;
-}
-
-bool
-trk::Switch::
-set_direction(const SW_DIRECTION& sw_direc)
-{
-    sw_direc_ = sw_direc;
-    int addr = sw_num_ * 2 + sw_direc_;
-    demux_address_->set(addr);
     return true;
 }
 
 void
-trk::
-Switch::sensor_event(int value, int count,const SW_DIRECTION& sw_direc)
+trk::SwitchDriver::
+set(int v)
 {
-    cout << "Switch, value = " << value << endl;
-    cout << "Switch, count = " << count << endl;
+    int i = scan();
+    if ( i != v) {
+        int addr = sw_num_ * 2 + v;
+        demux_address_->set(addr);
+    }
+}
+
+void
+trk::
+SwitchDriver::sensor_event(int value, int count,const SW_DIRECTION& sw_direc)
+{
+    cout << "SwitchDriver, value = " << value << endl;
+    cout << "SwitchDriver, count = " << count << endl;
 }
     
 trk::SW_DIRECTION
-trk::Switch::
-state()
+trk::SwitchDriver::
+scan()
 {
     int sw_thru = gpio_thru_->value();
     int sw_out  = gpio_out_->value();
@@ -141,7 +138,7 @@ state()
 }
 
 int 
-trk::Switch::
+trk::SwitchDriver::
 sw_num()
 {
     return sw_num_;

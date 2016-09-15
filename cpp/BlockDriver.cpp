@@ -42,39 +42,71 @@
  * 
  */
 
-#ifndef TRK_BREAKSENSOR_HH
-#define TRK_BREAKSENSOR_HH
-
-#include "InputSensor.h"
+#include "BlockDriver.h"
+#include "BlockSensor.h"
+#include "DemuxAddress.h"
+#include "EventDevice.h"
 #include "GPIO.h"
 #include "GPIOConfig.h"
+#include <iostream>
 
-namespace trk {
-
-class JobClock;
-class EventDevice;
-
-class BreakSensor : public InputSensor
+trk::BlockDriver::
+BlockDriver(const std::string& blk_name)
 {
-    public:
-        BreakSensor( EventDevice* efd);
-        ~BreakSensor();
+    blk_name_ = blk_name;
 
-        void event (int ierr, InputGPIO* gpio);
-        int     value();
-        int     count();
-        double  timeofday();
+    demux_address_ = DemuxAddress::instance();
+    GPIOConfig* gpio_config    = GPIOConfig::instance();
+    blk_base_addr_ = gpio_config->blk_base_addr();
+    blk_index_     = gpio_config->blk_index(blk_name);
 
-    private:
-        EventDevice*    efd_;
-
-        int             value_;
-        int             count_;
-        double          tm_event_;
-
-        JobClock*       job_clock_;
-};
-
+    gpio_           = gpio_config->blk_gpio(blk_name);
+    blk_sensor_     = 0;
 }
 
-#endif
+trk::BlockDriver::
+~BlockDriver() 
+{
+    if (blk_sensor_ ) blk_sensor_->ignore_event();
+    delete gpio_;
+}
+
+bool
+trk::BlockDriver::
+enable_sensor(EventDevice* efd)
+{
+
+    blk_sensor_ = new BlockSensor(efd, blk_name_);
+    gpio_->edge_type(BOTH);
+    gpio_->debounce_time(200);
+    gpio_->wait_for_edge(blk_sensor_);
+
+    return true;
+}
+
+void
+trk::BlockDriver::
+set(int v)
+{
+    int i = scan();
+    if ( i != v) {
+        int blk_addr = blk_base_addr_ + 1 + blk_index_;
+        demux_address_->set(blk_addr);
+    }
+}
+
+trk::BLK_STATE
+trk::BlockDriver::
+scan()
+{
+    int v = gpio_->value();
+    if ( v == 0 ) return GO;
+    else          return STOP;
+}
+
+std::string
+trk::BlockDriver::
+blk_name()
+{
+    return blk_name_;
+}

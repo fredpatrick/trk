@@ -43,49 +43,56 @@
  */
 
 #include <iostream>
-#include "Switches.h"
+#include "SwitchDrivers.h"
 #include "EventDevice.h"
 #include "trkutl.h"
 
-trk::Switches::
-Switches()
+trk::SwitchDrivers::
+SwitchDrivers()
 {
-    std::cout << "Switches:ctor" << std::endl;
+    std::cout << "SwitchDrivers:ctor" << std::endl;
     for ( int i = 0; i < 6; i++) {
-        switch_[i] = new Switch(i);
-        switch_[i]->set_direction(THRU);
+        switch_[i] = new SwitchDriver(i);
+        switch_[i]->set(THRU);
     }
 }
 
-trk::Switches::
-~Switches()
+trk::SwitchDrivers::
+~SwitchDrivers()
 {
-//  std::cout << "Switches:dtor" << std::endl;
+//  std::cout << "SwitchDrivers:dtor" << std::endl;
     for ( int i = 0; i < 6; i++) {
         delete switch_[i];
     }
 }
 
 bool
-trk::Switches::
-enable_sensors(EventDevice* efd, 
-               int&         n_event)
+trk::SwitchDrivers::
+enable_sensors(EventDevice* efd)
 {
     for ( int i = 0; i < 6; i++) {
-        switch_[i]->enable_sensors(efd, n_event);
+        switch_[i]->enable_sensors(efd);
     }
     return true;
 }
 
 void
-trk::Switches::
-set_direction( const SWKey& key)
+trk::SwitchDrivers::
+set( const std::pair<int, int>& item)
 {
-    switch_[key.num]->set_direction(key.swd);
+    switch_[item.first]->set(item.second);
 }
 
+int
+trk::SwitchDrivers::
+scan(int i)
+{
+    switch_[i]->scan();
+}
+
+/*
 bool
-trk::Switches::
+trk::SwitchDrivers::
 manual_set()
 {
     SW_DIRECTION sw_state[6];
@@ -100,7 +107,7 @@ manual_set()
 }
 
 trk::SWKey
-trk::Switches::
+trk::SwitchDrivers::
 get_switch_key()
 {
     SWKey key;
@@ -131,39 +138,30 @@ get_switch_key()
     }
     return key;
 }
+*/
 
 void
-trk::Switches::
-scan(SW_DIRECTION* sw_state)
-{
-    for ( int i = 0; i < 6; i++) {
-        SW_DIRECTION swd = switch_[i]->state();
-        sw_state[i] = swd;
-    }
-}
-
-void
-trk::Switches::
+trk::SwitchDrivers::
 list_state()
 {
     for ( int i = 0; i < 6; i++) {
-        std::cout << switch_[i]->state();
+        std::cout << switch_[i]->scan();
     }
     std::cout << std::endl;
 }
 
-trk::Switch*
-trk::Switches::
+trk::SwitchDriver*
+trk::SwitchDrivers::
 swtch(int i) const
 {
     return switch_[i];
 }
 
 std::ostream& 
-trk::operator<<( std::ostream& ostrm, const trk::Switches& switches)
+trk::operator<<( std::ostream& ostrm, const trk::SwitchDrivers& switches)
 {
     for ( int i = 0; i < 6; i++) {
-        ostrm << switches.swtch(i)->state();
+        ostrm << switches.swtch(i)->scan();
     }
     return  ostrm;
 }

@@ -42,42 +42,39 @@
  * 
  */
 
-#ifndef TRK_BLOCKS_HH
-#define TRK_BLOCKS_HH
-
-#include <map>
-#include <vector>
-#include <string>
-#include <iostream>
+#ifndef TRK_SWITCHDRIVER_HH
+#define TRK_SWITCHDRIVER_HH
 
 #include "trkutl.h"
 
-namespace trk
-{
-    class Block;
-    class EventDevice;
+namespace trk {
 
-    class Blocks
-    {
-        public:
-            Blocks();
-            ~Blocks();
+class InputGPIO;
+class GPIOConfig;
+class SwitchSensor;
+class DemuxAddress;
+class EventDevice;
 
-            bool        blockit(const std::string& blk_name);
-            bool        clearit(const std::string& blk_name);
-            bool        enable_sensors(EventDevice* efd, int& n_event);
+class SwitchDriver {
+    public:
+        SwitchDriver(int sw_num);
+        ~SwitchDriver();
 
-            int         n_block() const;
-            std::string blk_name(int i) const;
-            BLK_STATE   get_state(int i) const;
-        private:
-            std::vector<std::string>    blk_names_;
-            std::map<std::string, int > block_indexes_;
-            std::vector<Block*>         blocks_;
-    };
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::Blocks& blocks);
+        bool            enable_sensors(EventDevice* efd);
+        void           set(int v);
+        void sensor_event(int value, int cout, const SW_DIRECTION& sw_direc);
+        SW_DIRECTION    scan();
+        int             sw_num();
+    private:
+        GPIOConfig*     gpio_config_;
+        int             sw_num_;
+        SW_DIRECTION    sw_direc_;
+        InputGPIO*      gpio_thru_;
+        InputGPIO*      gpio_out_;
+        SwitchSensor*   switch_sensor_thru_;
+        SwitchSensor*   switch_sensor_out_;
+        DemuxAddress*   demux_address_;
+};
 
 }
 
