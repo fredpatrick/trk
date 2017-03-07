@@ -45,7 +45,7 @@
 #include "trkutl.h"
 #include "SocketServer.h"
 #include "CmdServer.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "event_device_error.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -99,7 +99,7 @@ trk::SocketServer::
 
 int
 trk::SocketServer::
-write(EventBuffer* ebfr)
+write(PacketBuffer* ebfr)
 {
     int bfrlen = ebfr->bfrlen();
     char* bfr  = ebfr->bfr();
@@ -127,12 +127,12 @@ write(EventBuffer* ebfr)
     return ns;
 }
 
-trk::EventBuffer* 
+trk::PacketBuffer* 
 trk::SocketServer::
 read()
 {
 #if DEBUG_SCKT > 0
-    std::cout << "SocketServer.read. ready to read new EventBuffer" << std::endl;
+    std::cout << "SocketServer.read. ready to read new PacketBuffer" << std::endl;
 #endif
     int bfrlen;
     int nl;
@@ -147,10 +147,10 @@ read()
 #if DEBUG_SCKT > 0
     std::cout << "SocketServer.read, nl = " << nl << ", bfrlen = " << bfrlen << std::endl;
 #endif
-    if ( nl != sizeof(int) ) {
+    if ( nl == 0 )  {
         std::ostringstream ost;
         ost << "SocketServer:read, socket_fd = " << socket_fd_ << 
-                                     ", error reading bfrlen, nl = " << nl;
+                                     ", error reading bfrlen, end of file";
         throw event_device_error(ost.str() );
     }
     char* bfr = new char[bfrlen];
@@ -165,7 +165,7 @@ read()
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
     std::cout << "SocketServer.read, tag = " << tag << std::endl;
-    EventBuffer* ebfr = new EventBuffer(bfrlen, bfr); 
+    PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;
 }

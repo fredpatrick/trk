@@ -70,7 +70,6 @@ int main() {
     Drivers* drivers_ = Drivers::instance();
     SocketServer* ess = 0;
     ess = new SocketServer(17303);
-    drivers_->enable(ess);
     CmdServer* cms = new CmdServer(ess);
     cms->enable();
     return 0;

@@ -97,7 +97,8 @@ event(int ierr, InputGPIO* gpio)
 
     SwitchEvent* sw_event = new SwitchEvent(tm_event_, 
                                             sw_num_, 
-                                            sw_direc_);
+                                            sw_direc_,
+                                            value_);
     sw_event-> write_event(efd_);
     sw_event->print(50);
     ier = pthread_mutex_unlock(&write_event_);

@@ -48,7 +48,7 @@
 #include "EventDevice.h"
 #include <string>
 #include <pthread.h>
-
+#define DEBUG_SCKT 1
 namespace trk
 {
     class CmdServer;
@@ -58,8 +58,8 @@ namespace trk
             SocketServer(int portno);
             ~SocketServer();
 
-            int          write(EventBuffer* ebfr);
-            EventBuffer* read();
+            int          write(PacketBuffer* ebfr);
+            PacketBuffer* read();
             int          wait_for_packet(CmdServer* cmd_server);
             int          wait_for_exit();
             int          wait_for_packet();

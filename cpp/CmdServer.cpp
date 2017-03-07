@@ -42,12 +42,13 @@
  * 
  */
 
+#include <pthread.h>
 #include "CmdServer.h"
 #include "CmdPacket.h"
 #include "MsgPacket.h"
 #include "BreakEvent.h"
 #include "EventDevice.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "Drivers.h"
 #include "BlockDrivers.h"
 #include "BreakDrivers.h"
@@ -95,34 +96,38 @@ void
 trk::CmdServer::
 packet(int ierr)
 {
-    EventBuffer* cbfr;
+    PacketBuffer* cbfr;
     try {
         cbfr = ss_->read();
     } catch ( event_device_error r ) {
-        std::cout << "CmdServer.process_commands: " << r.reason() << std::endl;
-        double tm_event = JobClock::instance()->job_time();
-        BreakEvent event(tm_event);
-        event.write_event(ss_);
-        std::cout << "CmdServer.process_commands, generating BRK event" << std::endl;
+        std::cout << "CmdServer.packet: " << r.reason() << std::endl;
+        std::cout << "CmdServer.packet, deleting drivers" << std::endl;
+        delete drivers_;
+        EnablePCB::instance()->off();
+        exit(0);
+
         return;
     }
     CmdPacket* cp;
     try {
         cp = new CmdPacket(cbfr);
     } catch ( illegal_cmdpacket r ) {
-        std::cout << "CmdServer.process_commands: " << r.reason() << std::endl;
+        std::cout << "CmdServer.packet: " << r.reason() << std::endl;
     }
     std::string command = cp->command();
-    std::cout << "CmdServer.process_commands, command = " << command << std::endl;
+    std::cout << "CmdServer.packet, command = " << command << std::endl;
     if (        command == "break" ) {
-        double tm_event = JobClock::instance()->job_time();
-        BreakEvent event(tm_event);
-        event.write_event(ss_);
+        ::pthread_exit(0);
+//      double tm_event = JobClock::instance()->job_time();
+//      BreakEvent event(tm_event);
+//      event.write_event(ss_);
+    } else if ( command == "enable_gpios") {
+        drivers_->enable(ss_);
     } else if ( command == "scan" ) {
         std::string type = cp->type();
         int         n_item = cp->n_item();
-        std::cout << "CmdServer.process_commands, type = " << type << std::endl;
-        std::cout << "CmdServer.process_commands, n_item = " << n_item << std::endl;
+        std::cout << "CmdServer.packet, type = " << type << std::endl;
+        std::cout << "CmdServer.packet, n_item = " << n_item << std::endl;
         for ( int i = 0; i < n_item; i++) {
             if ( type == "track" ) {
                 std::pair<int, int> item = cp->item(i);
@@ -137,14 +142,14 @@ packet(int ierr)
                 item.second = switch_drivers_->scan(item.first);
                 cp->item(i, item);
             } else {
-                std::cout << "CmdServer.process_commands: unknown type = " << 
+                std::cout << "CmdServer.packet: unknown type = " << 
                                    type << std::endl;
             }
         }
         cp->write(ss_);
     } else if ( command == "set" ) {
         std::string type = cp->type();
-        std::cout << "CmdServer.process_commands, type = " << type << std::endl;
+        std::cout << "CmdServer.packet, type = " << type << std::endl;
         int         n_item = cp->n_item();
         for ( int i = 0; i < n_item; i++) {
             if ( type == "switch" ) {
@@ -154,7 +159,7 @@ packet(int ierr)
                 std::pair<int, int> item = cp->item(i);
                 block_drivers_->set(item);
             } else {
-                std::cout << "CmdServer.process_commands: unknown type = " << 
+                std::cout << "CmdServer.packet: unknown type = " << 
                                     type << std::endl;
             }
         }
