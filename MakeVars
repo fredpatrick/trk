@@ -5,22 +5,22 @@
 .SUFFIXES: .exe
 
 #PRJDIR   = /home/fredpatrick/wrk/trk
-PRJDIR    = $(HOME)/wrk/trk
-TRK_DIR  = $(PRJDIR)
-TRK_U_DIR = $(HOME)/wrk/trk_u
+PRJDIR    = $(HOME)/wrk/trkbbb
+TRKBBB_DIR  = $(PRJDIR)
+TRKU_DIR = $(HOME)/wrk/trku
 
 
-TRK_LIB_DIR    = $(TRK_DIR)/lib
-TRK_U_LIB_DIR  = $(TRK_U_DIR)/lib
+TRKBBB_LIB_DIR    = $(TRKBBB_DIR)/lib
+TRKU_LIB_DIR  = $(TRKU_DIR)/lib
 
-ALL_LIB_DIRS   = $(TRK_LIB_DIR) $(TRK_U_LIB_DIR)
+ALL_LIB_DIRS   = $(TRKBBB_LIB_DIR) $(TRKU_LIB_DIR)
 
-TRK_VERSION     = $(shell tr b \. < $(TRK_DIR)/VERSION)
-TRK_U_VERSION     = $(shell tr b \. < $(TRK_U_DIR)/VERSION)
+TRKBBB_VERSION     = $(shell tr b \. < $(TRKBBB_DIR)/VERSION)
+TRKU_VERSION     = $(shell tr b \. < $(TRKU_DIR)/VERSION)
 
 CXX             = c++ 
 CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
-INCFLAGS        = -I.  -I$(TRK_DIR)/include -I$(TRK_U_DIR)/include
+INCFLAGS        = -I.  -I$(TRKBBB_DIR)/include -I$(TRKU_DIR)/include
 LIBFLAGS        = -shared -fPIC
 
 CPPFLAGS        =
@@ -32,11 +32,11 @@ ARFLAGS         = rc
 RANLIB          = ranlib
 RM              = rm -f
 LN              = ln -f -s 
-IDIRCMD         = $(TRK_DIR)/admin/mkinstalldirs
-MAKE_DEPS       = $(TRK_DIR)/admin/DotHDeps
+IDIRCMD         = $(TRKBBB_DIR)/admin/mkinstalldirs
+MAKE_DEPS       = $(TRKBBB_DIR)/admin/DotHDeps
 CONFLIBS        = -ldl -lm -lpthread
 
-LDLIBS          = -L$(TRK_LIB_DIR) -ltrk$(TRK_VERSION) \
-                  -L$(TRK_U_LIB_DIR) -ltrk_u$(TRK_U_VERSION) \
+LDLIBS          = -L$(TRKBBB_LIB_DIR) -ltrkbbb$(TRKBBB_VERSION) \
+                  -L$(TRKU_LIB_DIR) -ltrku$(TRKU_VERSION) \
                   $(CONFLIBS)
 

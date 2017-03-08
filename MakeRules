@@ -18,6 +18,6 @@ $(PRGOBJS) : %.o  : %.cpp
 #
 
 $(PRGS): %.exe : %.o 
-	@$(IDIRCMD) $(TRK_DIR)/bin
+	@$(IDIRCMD) $(TRKBBB_DIR)/bin
 	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(LDFLAGS) $(*F).o $(LDLIBS) -o $@
-	cd $(TRK_DIR)/bin; $(RM) $(*F); $(LN) $(THIS_DIR)/$@ $(*F)
+	cd $(TRKBBB_DIR)/bin; $(RM) $(*F); $(LN) $(THIS_DIR)/$@ $(*F)

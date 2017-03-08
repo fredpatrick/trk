@@ -1,0 +1,276 @@
+
+/*
+ * ============================================================================
+ *                   The XyloComp Software License, Version 1.1
+ * ============================================================================
+ * 
+ *    Copyright (C) 2016 XyloComp Inc. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modifica-
+ * tion, are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of  source code must  retain the above copyright  notice,
+ *    this list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. The end-user documentation included with the redistribution, if any, must
+ *    include  the following  acknowledgment:  "This product includes  software
+ *    developed  by  XyloComp Inc.  (http://www.xylocomp.com/)." Alternately, 
+ *    this  acknowledgment may  appear in the software itself,  if
+ *    and wherever such third-party acknowledgments normally appear.
+ * 
+ * 4. The name "XyloComp" must not be used to endorse  or promote  products 
+ *    derived  from this  software without  prior written permission. 
+ *    For written permission, please contact fred.patrick@xylocomp.com.
+ * 
+ * 5. Products  derived from this software may not  be called "XyloComp", 
+ *    nor may "XyloComp" appear  in their name,  without prior written 
+ *    permission  of Fred Patrick
+ * 
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS  FOR A PARTICULAR  PURPOSE ARE  DISCLAIMED.  IN NO  EVENT SHALL
+ * XYLOCOMP INC. OR ITS CONTRIBUTORS  BE LIABLE FOR  ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL,  EXEMPLARY, OR CONSEQUENTIAL  DAMAGES (INCLU-
+ * DING, BUT NOT LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR  PROFITS; OR BUSINESS  INTERRUPTION)  HOWEVER CAUSED AND ON
+ * ANY  THEORY OF LIABILITY,  WHETHER  IN CONTRACT,  STRICT LIABILITY,  OR TORT
+ * (INCLUDING  NEGLIGENCE OR  OTHERWISE) ARISING IN  ANY WAY OUT OF THE  USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ */
+#include <iostream>
+#include "gpioconfig.h"
+
+using namespace std;
+using namespace trk;
+
+trk::GPIOConfig* trk::GPIOConfig::instance_ = 0;
+
+trk::GPIOConfig*
+trk::
+GPIOConfig::instance()
+{
+    string cfgfil = "./gpio_config";
+    if ( !instance_ ) {
+        instance_ = new GPIOConfig(cfgfil);
+    }
+    return instance_;
+}
+
+trk::
+GPIOConfig::GPIOConfig(const string& cfgfil)
+{
+    ifstream from(cfgfil.c_str() );
+//  cout << "GPIOConfig::GPIOConfig " << cfgfil << " opened" << endl;
+    string      pin_name;
+    GPIOData    data;
+    char        cline[120];
+
+    while (!from.eof() ) {
+        string tag = "";
+        from >> tag;
+        if  (tag[0] == '#' ) {
+            from.getline(cline, 120);
+        } else if ( tag == "HDR" ) {
+            from >> pin_name >> data.gpio_num >> data.gpio_pin >> data.direction >> data.color;
+            header_pins_[pin_name] = data;
+        } else if ( tag == "ADDR") {
+            string dmx_a;
+            from >> dmx_a >> pin_name;
+            address_pins_[dmx_a] = pin_name;
+        } else if ( tag == "SW")   {
+            SWKey key;
+            from >> key.num >> key.swd;
+            from >> pin_name;
+            switch_pins_[key] = pin_name;
+        } else if ( tag == "TRK")  {
+            string zone_name;
+            from >> zone_name >> pin_name;
+            zone_names_.push_back(zone_name);
+            track_sensor_pins_[zone_name] = pin_name;
+        } else if ( tag == "PCB")  {
+            from >> pcb_power_pin_;
+        } else if ( tag == "BRKSIG") {
+            from >> brk_event_pin_;
+        } else if ( tag == "BLK" ) {
+            BLKData bd;
+            string  blk_name;
+            from >> blk_name;
+            if ( blk_name == "Base" ) {
+                from >> blk_base_index_;
+            } else {
+                from >> bd.blk_index >> bd.pin_name;
+                blocker_data_[blk_name] = bd;
+            }
+        }
+    }
+}
+
+trk::GPIO* 
+trk::
+GPIOConfig::pcb_power_gpio()
+{
+    GPIOData data;
+    data = header_pins_[pcb_power_pin_];
+    return new OutputGPIO(data.gpio_num);
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+brk_event_gpio()
+{
+    GPIOData data = header_pins_[brk_event_pin_];
+    return new InputGPIO(data.gpio_num);
+}
+
+trk::GPIO*
+trk::GPIOConfig::
+demux_address_gpio(const std::string& a)
+{
+    std::string pin_name = address_pins_[a];
+    GPIOData data = header_pins_[pin_name];
+    return new OutputGPIO(data.gpio_num);
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+switch_gpio(const SWKey& key)
+{
+    std::string pin_name = switch_pins_[key];
+    GPIOData    d = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+track_gpio(const std::string& zone_name)
+{
+    std::string pin_name = track_sensor_pins_[zone_name];
+    GPIOData    d = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
+}
+
+std::vector<string>
+trk::GPIOConfig::
+zone_names()
+{
+    return zone_names_;
+}
+
+void
+trk::GPIOConfig::
+clear_gpios()
+{
+    typedef map<string, GPIOData>::const_iterator CI;
+    for (CI p = header_pins_.begin(); p!= header_pins_.end(); ++p) {
+        GPIOData data = p->second;
+        GPIO* gpio = new GPIO( data.gpio_num);
+        delete gpio;
+    }
+}
+
+int
+trk::GPIOConfig::
+blk_base_addr()
+{
+    return blk_base_index_;
+}
+
+int 
+trk::GPIOConfig::
+blk_index(const std::string& blk_name)
+{
+    return blocker_data_[blk_name].blk_index;
+}
+
+trk::InputGPIO*
+trk::GPIOConfig::
+blk_gpio(const std::string& blk_name)
+{
+    std::string pin_name = blocker_data_[blk_name].pin_name;
+    GPIOData    d        = header_pins_[pin_name];
+    return new InputGPIO( d.gpio_num);
+}
+
+std::vector<string>
+trk::GPIOConfig::
+blk_names()
+{
+    std::vector<string> bns;
+    typedef std::map<std::string, BLKData>::const_iterator CI;
+    for (int i = 0; i < blocker_data_.size(); i++) {
+        for ( CI p = blocker_data_.begin(); p != blocker_data_.end(); p++) {
+            if ( p->second.blk_index == i ) {
+                bns.push_back( p->first);
+            }
+        }
+    }
+    if ( bns.size() != blocker_data_.size() ) {
+        std::cout << "GPIOConfig.blk_names, bad blocker_data, indices corrupt" << std::endl;
+    }
+    return bns;
+}
+
+void
+trk::
+GPIOConfig::list_header_pins(std::ostream& ostrm)
+{
+    ostrm << "GPIOConfig::list_header_pins" << endl;
+    typedef map<string, GPIOData>::const_iterator CI;
+    for (CI p = header_pins_.begin(); p!= header_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+GPIOConfig::list_demux_address_pins(std::ostream& ostrm)
+{
+    ostrm << "GPIOConfig::list_demux_address_pins" << endl;
+    typedef map<string, string>::const_iterator CI;
+    for (CI p = address_pins_.begin(); p!= address_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+GPIOConfig::list_switch_sensor_pins(std::ostream& ostrm)
+{
+    ostrm << "GPIOConfig::list_switch_sensor_pins" << endl;
+    typedef map<SWKey, string>::const_iterator CI;
+    for (CI p = switch_pins_.begin(); p!= switch_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+GPIOConfig::list_track_sensor_pins(std::ostream& ostrm)
+{
+    ostrm << "GPIOConfig::list_track_sensor_pins" << endl;
+    typedef map<string, string>::const_iterator CI;
+    for (CI p = track_sensor_pins_.begin(); p!= track_sensor_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+GPIOConfig::list_pcb_power_pin(std::ostream& ostrm)
+{
+    ostrm << "GPIOConfig::pcb_power_pin: ";
+    ostrm << pcb_power_pin_ << endl;
+}
+
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const trk::GPIOData& data)
+{
+    ostrm << data.gpio_num << '\t' << data.gpio_pin << '\t' << 
+                                     data.direction << '\t' << data.color;
+    return ostrm;
+}
