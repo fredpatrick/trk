@@ -52,11 +52,13 @@
 
 
 trk::SwitchSensor::
-SwitchSensor( int                 sw_num, 
+SwitchSensor( const std::string&  switch_name,
+              int                 sw_num, 
               const SW_DIRECTION& sw_direc, 
               EventDevice*        efd)
 {
     job_clock_    = JobClock::instance();
+    switch_name_  = switch_name;
     sw_direc_     = sw_direc;
     sw_num_       = sw_num;
     efd_          = efd;
@@ -96,6 +98,7 @@ event(int ierr, InputGPIO* gpio)
             " count = " << count_ << std::endl;
 
     SwitchEvent* sw_event = new SwitchEvent(tm_event_, 
+                                            switch_name_,
                                             sw_num_, 
                                             sw_direc_,
                                             value_);

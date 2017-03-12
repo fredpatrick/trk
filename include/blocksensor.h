@@ -47,7 +47,7 @@
 
 #include "inputsensor.h"
 #include "gpio.h"
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 
 namespace trk {
 
@@ -70,7 +70,7 @@ class BlockSensor : public InputSensor
     private:
         EventDevice*    efd_;
         bool            ignore_event_;
-        std::string     blk_name_;
+        std::string     block_name_;
 
         int             value_;
         int             count_;

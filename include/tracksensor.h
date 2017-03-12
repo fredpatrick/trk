@@ -47,7 +47,6 @@
 
 #include "inputsensor.h"
 #include "gpio.h"
-#include "gpioconfig.h"
 
 namespace trk {
 

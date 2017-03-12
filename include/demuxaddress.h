@@ -47,7 +47,6 @@
 
 #include <string>
 #include<bitset>
-#include "gpioconfig.h"
 #include "gpio.h"
 
 namespace trk {

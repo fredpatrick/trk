@@ -49,28 +49,28 @@
 
 #include "demuxaddress.h"
 #include "eventdevice.h"
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 
 trk::BlockDrivers::
 BlockDrivers()
 {
-    GPIOConfig* gpio_config = GPIOConfig::instance();
-    blk_names_ = gpio_config-> blk_names();
-    for ( int i = 0; i < blk_names_.size(); i++) {
-        BlockDriver* b = new BlockDriver(blk_names_[i]);
-        blocks_.push_back(b);
-        block_indexes_[blk_names_[i]] = i;
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    block_sensor_names_ = layout_config-> block_sensor_names();
+    blocks_.reserve(block_sensor_names_.size() );
+    for ( int i = 0; i < block_sensor_names_.size(); i++) {
+        BlockDriver* b = new BlockDriver(block_sensor_names_[i]);
+        int bix = layout_config->block_sensor_index( block_sensor_names_[i] );
+        blocks_[bix] = b;
     }
 
-    int blk_base = gpio_config->blk_base_addr();
     DemuxAddress* demux_address = DemuxAddress::instance();
-    demux_address->set(blk_base);                             // CLR to J-K flipflop
+    demux_address->set( layout_config->block_base_addr() );            // CLR to J-K flipflop
 }
 
 trk::BlockDrivers::
 ~BlockDrivers()
 {
-    for ( int i = 0; i < blk_names_.size(); i++) {
+    for ( int i = 0; i < blocks_.size(); i++) {
         delete blocks_[i];
     }
 }
@@ -108,9 +108,9 @@ n_block() const
 
 std::string
 trk::BlockDrivers::
-blk_name(int i) const
+block_name(int i) const
 {
-    return blk_names_[i];
+    return block_sensor_names_[i];
 }
 
 std::ostream&

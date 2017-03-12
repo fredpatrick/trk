@@ -42,7 +42,7 @@
  * 
  */
 
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 #include "breakdrivers.h"
 #include "breaksensor.h"
 #include "eventdevice.h"
@@ -58,8 +58,9 @@ bool
 trk::BreakDrivers::
 enable_sensors(EventDevice* efd )
 {
-    GPIOConfig* gpiocfg = GPIOConfig::instance();
-    gpio_brk_ = gpiocfg->brk_event_gpio();
+    LayoutConfig* layoutcfg = LayoutConfig::instance();
+    int gpio_num = layoutcfg->break_sensor_gpio_num();
+    gpio_brk_ = new InputGPIO(gpio_num);
     brk_event_sensor_ = new BreakSensor( efd);
     gpio_brk_->edge_type(RISING);
     gpio_brk_->debounce_time(200);

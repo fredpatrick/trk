@@ -61,10 +61,10 @@ class TrackDriver {
         ~TrackDriver();
 
         bool            enable_sensor(EventDevice* efd);
-        std::string     zone_name();
+        std::string     sensor_name();
         TRK_STATE       scan();
     private:
-        std::string     zone_name_;
+        std::string     sensor_name_;
         InputGPIO*      track_gpio_;
         TrackSensor*    track_sensor_;
 };

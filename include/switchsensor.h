@@ -57,7 +57,8 @@ class EventDevice;
 class SwitchSensor : public InputSensor
 {
     public:
-        SwitchSensor( int                 sw_num,  
+        SwitchSensor( const std::string&  switch_name,
+                      int                 sw_num,  
                       const SW_DIRECTION& sw_direc, 
                       EventDevice*        efd);
         ~SwitchSensor();
@@ -69,6 +70,7 @@ class SwitchSensor : public InputSensor
         void    ignore_event(bool s);
 
     private:
+        std::string     switch_name_;
         SW_DIRECTION    sw_direc_;
         int             sw_num_;
         EventDevice*    efd_;

@@ -51,7 +51,6 @@
 
 namespace trk {
 
-class GPIOConfig;
 class TrackDriver;
 class EventDevice;
 
@@ -65,18 +64,16 @@ class TrackDrivers {
         TRK_STATE scan(int i ) const;
 
     private:
-        std::map<std::string, int>    zone_indexes_;;
-        std::vector<std::string>      zone_names_;
-        std::vector<TrackDriver*>              zones_;
+        std::map<std::string, int>    sensor_indexes_;;
+        std::vector<std::string>      sensor_names_;
+        std::vector<TrackDriver*>     sensor_drivers_;
 
-        GPIOConfig* gpio_config_;
         struct entry {
             entry() {}
             entry(const std::string& a, int c): alpha(a), cw0(c) {}
             std::string alpha;
             int         cw0;
             };
-        entry previous_zones_[8];
 }; 
 
 std::ostream&

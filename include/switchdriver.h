@@ -50,7 +50,7 @@
 namespace trk {
 
 class InputGPIO;
-class GPIOConfig;
+class LayoutConfig;
 class SwitchSensor;
 class DemuxAddress;
 class EventDevice;
@@ -66,7 +66,7 @@ class SwitchDriver {
         SW_DIRECTION    scan();
         int             sw_num();
     private:
-        GPIOConfig*     gpio_config_;
+        LayoutConfig*   layout_config_;
         int             sw_num_;
         SW_DIRECTION    sw_direc_;
         InputGPIO*      gpio_thru_;

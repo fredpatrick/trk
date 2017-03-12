@@ -69,11 +69,10 @@ namespace trk
             BLK_STATE   scan(int i) const;
 
             int         n_block() const;
-            std::string blk_name(int i) const;
+            std::string block_name(int i) const;
 
         private:
-            std::vector<std::string>    blk_names_;
-            std::map<std::string, int > block_indexes_;
+            std::vector<std::string>    block_sensor_names_;
             std::vector<BlockDriver*>   blocks_;
     };
 

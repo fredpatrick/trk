@@ -59,20 +59,20 @@ namespace trk
     class BlockDriver
     {
         public:
-            BlockDriver(const std::string& blk_name);
+            BlockDriver(const std::string& sensor_name);
             ~BlockDriver();
 
             bool        enable_sensor( EventDevice* efd);
             void        set(int v);
             BLK_STATE   scan();
-            std::string blk_name();
+            std::string sensor_name();
 
         private:
-            std::string     blk_name_;
-            int             blk_index_;
-            int             blk_base_addr_;
+            std::string     sensor_name_;
+            int             block_sensor_index_;
+            int             block_base_addr_;
             InputGPIO*      gpio_;
-            BlockSensor*    blk_sensor_;
+            BlockSensor*    block_sensor_;
 
             DemuxAddress*   demux_address_;
     };

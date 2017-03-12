@@ -47,27 +47,28 @@
 #include "demuxaddress.h"
 #include "eventdevice.h"
 #include "gpio.h"
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 #include <iostream>
 
 trk::BlockDriver::
-BlockDriver(const std::string& blk_name)
+BlockDriver(const std::string& sensor_name)
 {
-    blk_name_ = blk_name;
+    sensor_name_ = sensor_name;
 
     demux_address_ = DemuxAddress::instance();
-    GPIOConfig* gpio_config    = GPIOConfig::instance();
-    blk_base_addr_ = gpio_config->blk_base_addr();
-    blk_index_     = gpio_config->blk_index(blk_name);
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    block_base_addr_            = layout_config->block_base_addr();
+    block_sensor_index_         = layout_config->block_sensor_index(sensor_name);
 
-    gpio_           = gpio_config->blk_gpio(blk_name);
-    blk_sensor_     = 0;
+    int gpio_num                = layout_config->block_sensor_gpio_num(sensor_name);
+    gpio_                       = new InputGPIO(gpio_num);
+    block_sensor_               = 0;
 }
 
 trk::BlockDriver::
 ~BlockDriver() 
 {
-    if (blk_sensor_ ) blk_sensor_->ignore_event();
+    if (block_sensor_ ) block_sensor_->ignore_event();
     delete gpio_;
 }
 
@@ -76,10 +77,10 @@ trk::BlockDriver::
 enable_sensor(EventDevice* efd)
 {
 
-    blk_sensor_ = new BlockSensor(efd, blk_name_);
+    block_sensor_ = new BlockSensor(efd, sensor_name_);
     gpio_->edge_type(BOTH);
     gpio_->debounce_time(200);
-    gpio_->wait_for_edge(blk_sensor_);
+    gpio_->wait_for_edge(block_sensor_);
 
     return true;
 }
@@ -90,8 +91,8 @@ set(int v)
 {
     int i = scan();
     if ( i != v) {
-        int blk_addr = blk_base_addr_ + 1 + blk_index_;
-        demux_address_->set(blk_addr);
+        int block_addr = block_base_addr_ + 1 + block_sensor_index_;
+        demux_address_->set(block_addr);
     }
 }
 
@@ -106,7 +107,7 @@ scan()
 
 std::string
 trk::BlockDriver::
-blk_name()
+sensor_name()
 {
-    return blk_name_;
+    return sensor_name_;
 }

@@ -45,6 +45,7 @@
 #include <iostream>
 
 #include "demuxaddress.h"
+#include "layoutconfig.h"
 
 trk::DemuxAddress* trk::DemuxAddress::instance_ = 0;
 
@@ -61,12 +62,17 @@ DemuxAddress::instance()
 trk::
 DemuxAddress::DemuxAddress()
 {
-    GPIOConfig* gpio_config = GPIOConfig::instance();
-    gpios_[0] = gpio_config->demux_address_gpio("a0");
-    gpios_[1] = gpio_config->demux_address_gpio("a1");
-    gpios_[2] = gpio_config->demux_address_gpio("a2");
-    gpios_[3] = gpio_config->demux_address_gpio("a3");
-    gpios_[4] = gpio_config->demux_address_gpio("a4");
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    int gpio_num = layout_config->demux_address_gpio_num("a0");
+    gpios_[0] = new OutputGPIO(gpio_num);
+    gpio_num  = layout_config->demux_address_gpio_num("a1");
+    gpios_[1] = new OutputGPIO(gpio_num);
+    gpio_num  = layout_config->demux_address_gpio_num("a2");
+    gpios_[2] = new OutputGPIO(gpio_num);
+    gpio_num  = layout_config->demux_address_gpio_num("a3");
+    gpios_[3] = new OutputGPIO(gpio_num);
+    gpio_num  = layout_config->demux_address_gpio_num("a4");
+    gpios_[4] = new OutputGPIO(gpio_num);
 }
 
 trk::DemuxAddress::

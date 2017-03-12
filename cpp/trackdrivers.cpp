@@ -44,7 +44,7 @@
 
 #include <iostream>
 
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 #include "trackdrivers.h"
 #include "trackdriver.h"
 #include "eventdevice.h"
@@ -52,21 +52,20 @@
 trk::TrackDrivers::
 TrackDrivers()
 {
-    gpio_config_ = GPIOConfig::instance();
-    zone_names_ = gpio_config_->zone_names();
-    for ( int i = 0; i < zone_names_.size(); i++) {
-        TrackDriver* z  = new TrackDriver(zone_names_[i]);
-        zones_.push_back(z);
-        zone_indexes_[zone_names_[i]] = i;
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    sensor_names_ = layout_config->track_sensor_names();
+    sensor_drivers_.reserve( sensor_names_.size() );
+    for ( int i = 0; i < sensor_names_.size(); i++) {
+        TrackDriver* z  = new TrackDriver(sensor_names_[i]);
+        sensor_drivers_[layout_config->track_sensor_index( sensor_names_[i] ) ] = z;
+        sensor_indexes_[sensor_names_[i]] = i;
     }
-    previous_zones_[0] = entry("lowerloop", 0);
-
 }
 
 trk::TrackDrivers::
 ~TrackDrivers() {
-    for ( int i = 0; i < zone_names_.size(); i++) {
-        delete zones_[i];
+    for ( int i = 0; i < sensor_drivers_.size(); i++) {
+        delete sensor_drivers_[i];
     }
 }
 
@@ -75,8 +74,8 @@ bool
 trk::TrackDrivers::
 enable_sensors(EventDevice* efd )
 {
-    for ( int i = 0; i < zones_.size(); i++) {
-        zones_[ i ]->enable_sensor(efd);
+    for ( int i = 0; i < sensor_drivers_.size(); i++) {
+        sensor_drivers_[ i ]->enable_sensor(efd);
     }
     return true;
 }
@@ -85,20 +84,20 @@ int
 trk::TrackDrivers::
 n_zone() const
 {
-    return zones_.size();
+    return sensor_drivers_.size();
 }
 
 trk::TRK_STATE
 trk::TrackDrivers::
 scan(int i) const
 {
-    return zones_[i]->scan();
+    return sensor_drivers_[i]->scan();
 }
 
 std::ostream&
-trk::operator<<( std::ostream& ostrm, const trk::TrackDrivers& zones)
+trk::operator<<( std::ostream& ostrm, const trk::TrackDrivers& track_drivers)
 {
-    int n = zones.n_zone();
-    for ( int i = 0; i < n; i++) ostrm << zones.scan(i);
+    int n = track_drivers.n_zone();
+    for ( int i = 0; i < n; i++) ostrm << track_drivers.scan(i);
     return ostrm;
 }

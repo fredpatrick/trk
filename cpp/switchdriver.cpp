@@ -42,6 +42,7 @@
  * 
  */
 
+#include "layoutconfig.h"
 #include "switchdriver.h"
 #include "switchsensor.h"
 #include "demuxaddress.h"
@@ -63,14 +64,14 @@ SwitchDriver::SwitchDriver(int sw_num)
 
     demux_address_ = DemuxAddress::instance();
 
-    gpio_config_ = GPIOConfig::instance();
-//  std::cout << "SwitchDriver.ctor" << std::endl;
-    sw_num_ = sw_num;
-    SWKey keythru = {sw_num, THRU};
-    gpio_thru_  = gpio_config_->switch_gpio(keythru);
-    SWKey keyout = {sw_num, OUT};
-    gpio_out_   = gpio_config_->switch_gpio(keyout);
-//  std:cout << "SwitchDriver.ctor: Got the gpios" << endl;
+    layout_config_ = LayoutConfig::instance();
+    sw_num_        = sw_num;
+    SWKey keythru  = {sw_num, THRU};
+    int gpio_num   = layout_config_->switch_sensor_gpio_num(keythru);
+    gpio_thru_     = new InputGPIO(gpio_num);
+    SWKey keyout   = {sw_num, OUT};
+    gpio_num       = layout_config_->switch_sensor_gpio_num(keyout);
+    gpio_out_      = new InputGPIO(gpio_num);
 }
 
 trk::SwitchDriver::
@@ -87,17 +88,22 @@ bool
 trk::SwitchDriver::
 enable_sensors(EventDevice* efd)
 {
-
-    switch_sensor_thru_ = new SwitchSensor(sw_num_, 
-                                           THRU, 
-                                           efd);
+    SWKey key;
+    key.num = sw_num_;
+    key.swd = THRU;
+    std:;string switch_name = layout_config_-> switch_name(key);
+    switch_sensor_thru_     = new SwitchSensor(switch_name,
+                                               sw_num_, 
+                                               THRU, 
+                                               efd);
     gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(switch_sensor_thru_);
 //  std::cout << "SwitchDriver.ctor, Poll started on " << gpio_thru_->number() << 
 //                                      " thru position" << endl;
 
-    switch_sensor_out_ = new SwitchSensor(sw_num_, 
+    switch_sensor_out_ = new SwitchSensor(switch_name,
+                                          sw_num_, 
                                           OUT, 
                                           efd);
     gpio_out_->edge_type(BOTH);
@@ -121,8 +127,8 @@ void
 trk::
 SwitchDriver::sensor_event(int value, int count,const SW_DIRECTION& sw_direc)
 {
-    cout << "SwitchDriver, value = " << value << endl;
-    cout << "SwitchDriver, count = " << count << endl;
+    std::cout << "SwitchDriver, value = " << value << std::endl;
+    std::cout << "SwitchDriver, count = " << count << std::endl;
 }
     
 trk::SW_DIRECTION

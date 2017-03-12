@@ -46,18 +46,19 @@
 #include "tracksensor.h"
 #include "eventdevice.h"
 #include "gpio.h"
-#include "gpioconfig.h"
+#include "layoutconfig.h"
 #include <iostream>
 
 
 trk::
-TrackDriver::TrackDriver(const std::string& zone_name)
+TrackDriver::TrackDriver(const std::string& sensor_name)
 {
     track_sensor_ = 0;
 
-    zone_name_ = zone_name;
-    GPIOConfig* gpio_config = GPIOConfig::instance();
-    track_gpio_  = gpio_config->track_gpio(zone_name_);
+    sensor_name_ = sensor_name;
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    int gpio_num = layout_config->track_sensor_gpio_num(sensor_name_);
+    track_gpio_  = new InputGPIO(gpio_num);
     track_sensor_ = 0;
 }
 
@@ -74,7 +75,7 @@ trk::TrackDriver::
 enable_sensor(EventDevice* efd)
 {
 
-    track_sensor_= new TrackSensor(efd, zone_name_);
+    track_sensor_= new TrackSensor(efd, sensor_name_);
     track_gpio_->edge_type(BOTH);
     track_gpio_->debounce_time(200);
     track_gpio_->wait_for_edge(track_sensor_);
@@ -93,7 +94,7 @@ scan()
 
 std::string
 trk::TrackDriver::
-zone_name()
+sensor_name()
 {
-    return zone_name_;
+    return sensor_name_;
 }
