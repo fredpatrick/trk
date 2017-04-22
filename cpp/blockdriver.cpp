@@ -48,12 +48,15 @@
 #include "eventdevice.h"
 #include "gpio.h"
 #include "layoutconfig.h"
+#include "debugcntl.h"
 #include <iostream>
 
 trk::BlockDriver::
 BlockDriver(const std::string& sensor_name)
 {
     sensor_name_ = sensor_name;
+
+    dbg_ = DebugCntl::instance();
 
     demux_address_ = DemuxAddress::instance();
     LayoutConfig* layout_config = LayoutConfig::instance();
@@ -82,6 +85,9 @@ enable_sensor(EventDevice* efd)
     gpio_->debounce_time(200);
     gpio_->wait_for_edge(block_sensor_);
 
+    if (dbg_->check(2) ) {
+        std::cout << "BlockDriver.enable_sensor" << std::endl;
+    }
     return true;
 }
 

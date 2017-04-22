@@ -54,6 +54,7 @@ namespace trk {
 class InputGPIO;
 class TrackSensor;
 class EventDevice;
+class DebugCntl;
 
 class TrackDriver {
     public:
@@ -65,8 +66,10 @@ class TrackDriver {
         TRK_STATE       scan();
     private:
         std::string     sensor_name_;
+        int             sensor_index_;
         InputGPIO*      track_gpio_;
         TrackSensor*    track_sensor_;
+        DebugCntl*      dbg_;
 };
 
 }

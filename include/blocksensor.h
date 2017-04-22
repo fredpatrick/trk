@@ -53,6 +53,7 @@ namespace trk {
 
 class JobClock;
 class EventDevice;
+class DebugCntl;
 
 class BlockSensor : public InputSensor
 {
@@ -77,6 +78,7 @@ class BlockSensor : public InputSensor
         double          tm_event_;
 
         JobClock*       job_clock_;
+        DebugCntl*      dbg_;
 };
 
 }

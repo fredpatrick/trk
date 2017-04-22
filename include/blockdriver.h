@@ -54,7 +54,7 @@ namespace trk
     class InputGPIO;
     class BlockSensor;
     class EventDevice;
-
+    class DebugCntl;
 
     class BlockDriver
     {
@@ -75,6 +75,7 @@ namespace trk
             BlockSensor*    block_sensor_;
 
             DemuxAddress*   demux_address_;
+            DebugCntl*      dbg_;
     };
 }
 

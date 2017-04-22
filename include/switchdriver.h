@@ -46,11 +46,13 @@
 #define TRK_SWITCHDRIVER_HH
 
 #include "trkutl.h"
+#include <string>
 
 namespace trk {
 
 class InputGPIO;
 class LayoutConfig;
+class DebugCntl;
 class SwitchSensor;
 class DemuxAddress;
 class EventDevice;
@@ -67,8 +69,10 @@ class SwitchDriver {
         int             sw_num();
     private:
         LayoutConfig*   layout_config_;
+        DebugCntl*      dbg_;
         int             sw_num_;
         SW_DIRECTION    sw_direc_;
+        std::string     switch_name_;
         InputGPIO*      gpio_thru_;
         InputGPIO*      gpio_out_;
         SwitchSensor*   switch_sensor_thru_;

@@ -42,8 +42,8 @@
  * 
  */
 
-#ifndef TRK_CMDSERVER_HH
-#define TRK_CMDSERVER_HH
+#ifndef TRK_PACKETSERVER_HH
+#define TRK_PACKETSERVER_HH
 
 #include <string>
 #include <utility>
@@ -58,22 +58,27 @@ namespace trk {
     class TrackDrivers;
     class EventDevice;
     class SocketServer;
+    class PacketBuffer;
 
-    class CmdServer {
+    class PacketServer {
 
         public:
-            CmdServer(SocketServer* ss);
-            ~CmdServer();
+            PacketServer(SocketServer* ss);
+            ~PacketServer();
 
-            int             enable();
+            int             enable(int debug_level);
             void            packet(int ierr);
         private:
+            void            process_cmds(PacketBuffer* pbfr);
+            void            startup_process(PacketBuffer* pbfr);
+
             Drivers*        drivers_;
             BlockDrivers*   block_drivers_;
             BreakDrivers*   break_drivers_;
             SwitchDrivers*  switch_drivers_;
             TrackDrivers*   track_drivers_;
 
+            int             debug_level_;
             SocketServer*   ss_;
             EventDevice*    event_fd_;
     };

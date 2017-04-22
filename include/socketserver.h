@@ -46,12 +46,15 @@
 #define TRK_SOCKETSERVER_HH
 
 #include "eventdevice.h"
+#include "jobclock.h"
+
 #include <string>
 #include <pthread.h>
-#define DEBUG_SCKT 1
 namespace trk
 {
-    class CmdServer;
+    class PacketServer;
+    class DebugCntl;
+    class JobClock;
     class SocketServer: public EventDevice
     {
         public:
@@ -60,17 +63,19 @@ namespace trk
 
             int          write(PacketBuffer* ebfr);
             PacketBuffer* read();
-            int          wait_for_packet(CmdServer* cmd_server);
+            int          wait_for_packet(PacketServer* cmd_server);
             int          wait_for_exit();
             int          wait_for_packet();
         private:
             int         socket_fd_;
             int         listen_fd_;
 
-            static void* threaded_poll(void* attr);
-            pthread_t    packet_thread_;
-            bool         thread_running_;
-            CmdServer*   cmd_server_;
+            static void*  threaded_poll(void* attr);
+            pthread_t     packet_thread_;
+            bool          thread_running_;
+            PacketServer* cmd_server_;
+            DebugCntl*    dbg_;
+            JobClock*     jobclock_;
     };
 }
 #endif

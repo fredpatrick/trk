@@ -47,30 +47,20 @@
 #include <pthread.h>
 
 #include "trkutl.h"
-#include "jobclock.h"
-#include "cmdserver.h"
-#include "enablepcb.h"
+#include "packetserver.h"
 #include "socketserver.h"
-#include "drivers.h"
 
 using namespace trk;
 
 pthread_mutex_t write_event_ = PTHREAD_MUTEX_INITIALIZER;
 
-int main() {
+int main(int argc, char* argv[]) {
+    int debug_level = trk::debug_level(argc, argv);
 
-    std::cout << "BeagleBoneBlack driver for exercising trk cicuits" <<std::endl;
-
-    JobClock* job_clock = trk::JobClock::instance();
-    std::cout << *job_clock << std::endl;
-
-    EnablePCB* pcp = EnablePCB::instance();
-    pcp->on();
-
-    Drivers* drivers_ = Drivers::instance();
     SocketServer* ess = 0;
     ess = new SocketServer(17303);
-    CmdServer* cms = new CmdServer(ess);
-    cms->enable();
+    PacketServer* ps = new PacketServer(ess);
+    ps->enable(debug_level);
     return 0;
 }
+

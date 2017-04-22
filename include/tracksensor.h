@@ -57,7 +57,8 @@ class TrackSensor : public InputSensor
 {
     public:
         TrackSensor( EventDevice*       efd, 
-                     const std::string& zone_name_);
+                     const std::string& zone_name,
+                     int                sensor_index);
         ~TrackSensor();
 
         void    event (int ierr, InputGPIO* gpio);
@@ -70,6 +71,7 @@ class TrackSensor : public InputSensor
         EventDevice* efd_;
         bool         ignore_event_;
         std::string  zone_name_;
+        int          sensor_index_;
 
         int             value_;
         int             count_;

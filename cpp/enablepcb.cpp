@@ -42,8 +42,11 @@
  * 
  */
 
-#include "gpioconfig.h"
+#include "layoutconfig.h"
+#include "debugcntl.h"
 #include "enablepcb.h"
+
+#include <iostream>
 
 using namespace trk;
 
@@ -62,8 +65,10 @@ instance()
 trk::EnablePCB::
 EnablePCB()
 {
-    GPIOConfig* gpiocfg = GPIOConfig::instance();
-    gpio_pwr_ = gpiocfg->pcb_power_gpio();
+    LayoutConfig* layout_config = LayoutConfig::instance();
+    dbg_ = DebugCntl::instance();
+    int gpio_num  = layout_config->pcb_power_gpio_num();
+    gpio_pwr_ = new OutputGPIO(gpio_num);
 }
 
 trk::EnablePCB::
@@ -77,6 +82,9 @@ int
 trk::EnablePCB::
 on()
 {
+    if ( dbg_->check(2) ) {
+        std::cout << "EnablePCB.ctor, printed circuit power on" << std::endl;
+    }
     return gpio_pwr_->value(1);
 }
 

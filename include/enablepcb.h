@@ -48,6 +48,7 @@
 #include "gpio.h"
 
 namespace trk {
+class DebugCntl;
 
 class EnablePCB {
 
@@ -65,6 +66,7 @@ class EnablePCB {
     private:
         GPIO*                 gpio_pwr_;
         static EnablePCB*     instance_;
+        DebugCntl*            dbg_;
 };
 
 

@@ -48,6 +48,7 @@
 #include "demuxaddress.h"
 #include "eventdevice.h"
 #include "gpio.h"
+#include "debugcntl.h"
 #include <iostream>
 
 
@@ -59,6 +60,8 @@ SwitchDriver::SwitchDriver(int sw_num)
                                          " OUT OF RANGE" << std::endl;
         //throw ....
     }
+    dbg_ = DebugCntl::instance();
+
     switch_sensor_thru_ = 0;
     switch_sensor_out_  = 0;
 
@@ -67,6 +70,7 @@ SwitchDriver::SwitchDriver(int sw_num)
     layout_config_ = LayoutConfig::instance();
     sw_num_        = sw_num;
     SWKey keythru  = {sw_num, THRU};
+    switch_name_   = layout_config_-> switch_name(keythru);
     int gpio_num   = layout_config_->switch_sensor_gpio_num(keythru);
     gpio_thru_     = new InputGPIO(gpio_num);
     SWKey keyout   = {sw_num, OUT};
@@ -91,8 +95,7 @@ enable_sensors(EventDevice* efd)
     SWKey key;
     key.num = sw_num_;
     key.swd = THRU;
-    std:;string switch_name = layout_config_-> switch_name(key);
-    switch_sensor_thru_     = new SwitchSensor(switch_name,
+    switch_sensor_thru_     = new SwitchSensor(switch_name_,
                                                sw_num_, 
                                                THRU, 
                                                efd);
@@ -102,13 +105,17 @@ enable_sensors(EventDevice* efd)
 //  std::cout << "SwitchDriver.ctor, Poll started on " << gpio_thru_->number() << 
 //                                      " thru position" << endl;
 
-    switch_sensor_out_ = new SwitchSensor(switch_name,
+    switch_sensor_out_ = new SwitchSensor(switch_name_,
                                           sw_num_, 
                                           OUT, 
                                           efd);
     gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
     gpio_out_->wait_for_edge(switch_sensor_out_);
+
+    if (dbg_->check(2) ) {
+        std::cout << "SwitchDriver.enable_sensors" << std::endl;
+    }
     return true;
 }
 
@@ -120,6 +127,10 @@ set(int v)
     if ( i != v) {
         int addr = sw_num_ * 2 + v;
         demux_address_->set(addr);
+        if ( dbg_->check(2) ) {
+            std::cout << "SwitchDriver.set, switch_name = " << switch_name_ << 
+                                          ", i,v = " << i << ", " << v << std::endl;
+        }
     }
 }
 

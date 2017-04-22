@@ -52,12 +52,14 @@
 
 trk::TrackSensor::
 TrackSensor( EventDevice*       efd,
-             const std::string& zone_name) 
+             const std::string& zone_name,
+             int                sensor_index) 
 {
     job_clock_    = JobClock::instance();
     efd_          = efd;
     ignore_event_ = false;
     zone_name_    = zone_name;
+    sensor_index_ = sensor_index;
 //  std::cout << "TrackSensor.ctor:" ;
 
 }
@@ -95,6 +97,7 @@ event(int ierr, InputGPIO* gpio)
     std::cout << "TrackSensor.event, " << tm_event_ << std::endl;
     TrackEvent* trk_event = new TrackEvent(tm_event_, 
                                            zone_name_, 
+                                           sensor_index_,
                                            track_state);
     trk_event->write_event(efd_);
     trk_event->print(50);

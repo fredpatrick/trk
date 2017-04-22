@@ -43,9 +43,14 @@
  */
 
 #include <pthread.h>
-#include "cmdserver.h"
+#include "packetserver.h"
 #include "cmdpacket.h"
+#include "inipacket.h"
 #include "msgpacket.h"
+#include "debugcntl.h"
+#include "filestore.h"
+#include "jobclock.h"
+#include "enablepcb.h"
 #include "breakevent.h"
 #include "eventdevice.h"
 #include "packetbuffer.h"
@@ -55,67 +60,76 @@
 #include "switchdrivers.h"
 #include "trackdrivers.h"
 #include "enablepcb.h"
-#include "jobclock.h"
 #include "socketserver.h"
 #include "event_device_error.h"
 #include "illegal_cmdpacket.h"
 
-trk::CmdServer::
-CmdServer(SocketServer* ss)
+trk::PacketServer::
+PacketServer(SocketServer* ss)
 {
     ss_             = ss;
-    drivers_        = Drivers::instance();
-    break_drivers_  = drivers_->break_drivers();
-    block_drivers_  = drivers_->block_drivers();
-    switch_drivers_ = drivers_->switch_drivers();
-    track_drivers_  = drivers_->track_drivers();
 /*
     MsgPacket mp("Ready to receive messages");
     mp.write(ss_);
     */
 }
 
-trk::CmdServer::
-~CmdServer()
+trk::PacketServer::
+~PacketServer()
 {
 }
 
 int
-trk::CmdServer::
-enable()
+trk::PacketServer::
+enable(int debug_level)
 {
+    debug_level_ = debug_level;
     ss_->wait_for_packet(this);
     ss_->wait_for_exit();
-    std::cout << "CmdServer::enable, thread ended, deleting drivers" << std::endl;
+    std::cout << "PacketServer::enable, thread ended, deleting drivers" << std::endl;
     delete drivers_;
     EnablePCB::instance()->off();
     exit(0);
 }
 
 void
-trk::CmdServer::
+trk::PacketServer::
 packet(int ierr)
 {
-    PacketBuffer* cbfr;
+    PacketBuffer* pbfr;
     try {
-        cbfr = ss_->read();
+        pbfr = ss_->read();
     } catch ( event_device_error r ) {
-        std::cout << "CmdServer.packet: " << r.reason() << std::endl;
-        std::cout << "CmdServer.packet, deleting drivers" << std::endl;
+        std::cout << "PacketServer.packet: " << r.reason() << std::endl;
+        std::cout << "PacketServer.packet, deleting drivers" << std::endl;
         delete drivers_;
         EnablePCB::instance()->off();
         exit(0);
 
         return;
     }
+
+    std::string tag = pbfr->tag();
+    if ( tag == "CMD" ) {
+        process_cmds(pbfr);
+    } else if ( tag == "INI" ) {
+        startup_process(pbfr);
+    }
+}
+
+void
+trk::PacketServer::
+process_cmds(PacketBuffer* pbfr)
+{
+
     CmdPacket* cp;
     try {
-        cp = new CmdPacket(cbfr);
+        cp = new CmdPacket(pbfr);
     } catch ( illegal_cmdpacket r ) {
-        std::cout << "CmdServer.packet: " << r.reason() << std::endl;
+        std::cout << "PacketServer.packet: " << r.reason() << std::endl;
     }
     std::string command = cp->command();
-    std::cout << "CmdServer.packet, command = " << command << std::endl;
+    std::cout << "PacketServer.packet, command = " << command << std::endl;
     if (        command == "break" ) {
         ::pthread_exit(0);
 //      double tm_event = JobClock::instance()->job_time();
@@ -126,8 +140,8 @@ packet(int ierr)
     } else if ( command == "scan" ) {
         std::string type = cp->type();
         int         n_item = cp->n_item();
-        std::cout << "CmdServer.packet, type = " << type << std::endl;
-        std::cout << "CmdServer.packet, n_item = " << n_item << std::endl;
+        std::cout << "PacketServer.packet, type = " << type << std::endl;
+        std::cout << "PacketServer.packet, n_item = " << n_item << std::endl;
         for ( int i = 0; i < n_item; i++) {
             if ( type == "track" ) {
                 std::pair<int, int> item = cp->item(i);
@@ -142,14 +156,14 @@ packet(int ierr)
                 item.second = switch_drivers_->scan(item.first);
                 cp->item(i, item);
             } else {
-                std::cout << "CmdServer.packet: unknown type = " << 
+                std::cout << "PacketServer.packet: unknown type = " << 
                                    type << std::endl;
             }
         }
         cp->write(ss_);
     } else if ( command == "set" ) {
         std::string type = cp->type();
-        std::cout << "CmdServer.packet, type = " << type << std::endl;
+        std::cout << "PacketServer.packet, type = " << type << std::endl;
         int         n_item = cp->n_item();
         for ( int i = 0; i < n_item; i++) {
             if ( type == "switch" ) {
@@ -159,9 +173,55 @@ packet(int ierr)
                 std::pair<int, int> item = cp->item(i);
                 block_drivers_->set(item);
             } else {
-                std::cout << "CmdServer.packet: unknown type = " << 
+                std::cout << "PacketServer.packet: unknown type = " << 
                                     type << std::endl;
             }
         }
     }
+}
+
+void
+trk::PacketServer::
+startup_process(PacketBuffer* pbfr)
+{
+    IniPacket* ip = new IniPacket(pbfr);
+    std::string type = ip->type();
+
+    std::cout << "PacketServer.startup_process, ################################# " 
+                    << " type = " << type << std::endl;
+    if ( type != "tod" ) {
+        std::cout << "PacketServer.startup_process, Error!! Do not know type = " 
+                         << type << std::endl;
+        return;
+    }
+
+    std::string todts = ip->tod_timestamp();
+    std::cout << "PacketServer.startup_process, ################################# "
+                        << " tod = " << todts << std::endl;
+    delete ip;
+    JobClock* job_clock = JobClock::instance();
+    job_clock->tod_timestamp(todts);
+    std::string homedir = "/home/fredpatrick/";
+    std::string cfg_filnam = homedir + "wrk/cfg/layout_config.txt";
+    std::string dbg_filnam = homedir + "wrk/log/" + todts + "_trkDriver.txt";
+    FileStore* fs = FileStore::instance();
+    fs->cfgfil(cfg_filnam);
+    fs->dbgfil(dbg_filnam);
+    DebugCntl* dbg = DebugCntl::instance();
+    dbg->level(debug_level_);
+
+    EnablePCB* pcb = EnablePCB::instance();
+    pcb->on();
+
+    drivers_        = Drivers::instance();
+    break_drivers_  = drivers_->break_drivers();
+    block_drivers_  = drivers_->block_drivers();
+    switch_drivers_ = drivers_->switch_drivers();
+    track_drivers_  = drivers_->track_drivers();
+
+    ip = new IniPacket("btm");
+    ip->t0( job_clock->base_time() );
+    ip->t1( job_clock->job_time() );
+    ip->write(ss_);
+    delete ip;
 }

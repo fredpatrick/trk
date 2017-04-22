@@ -47,6 +47,7 @@
 #include "eventdevice.h"
 #include "gpio.h"
 #include "layoutconfig.h"
+#include "debugcntl.h"
 #include <iostream>
 
 
@@ -57,7 +58,9 @@ TrackDriver::TrackDriver(const std::string& sensor_name)
 
     sensor_name_ = sensor_name;
     LayoutConfig* layout_config = LayoutConfig::instance();
+    dbg_ = DebugCntl::instance();
     int gpio_num = layout_config->track_sensor_gpio_num(sensor_name_);
+    sensor_index_ = layout_config->track_sensor_index(sensor_name_);
     track_gpio_  = new InputGPIO(gpio_num);
     track_sensor_ = 0;
 }
@@ -75,10 +78,14 @@ trk::TrackDriver::
 enable_sensor(EventDevice* efd)
 {
 
-    track_sensor_= new TrackSensor(efd, sensor_name_);
+    track_sensor_= new TrackSensor(efd, sensor_name_, sensor_index_);
     track_gpio_->edge_type(BOTH);
     track_gpio_->debounce_time(200);
     track_gpio_->wait_for_edge(track_sensor_);
+
+    if (dbg_->check(2) ) {
+        std::cout << "TrackDriver.enable_sensor, name = " << sensor_name_ << std::endl;
+    }
 
     return true;
 }

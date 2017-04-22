@@ -44,7 +44,9 @@
 
 #include "trkutl.h"
 #include "socketserver.h"
-#include "cmdserver.h"
+#include "packetserver.h"
+#include "debugcntl.h"
+#include "jobclock.h"
 #include "packetbuffer.h"
 #include "event_device_error.h"
 #include <sys/socket.h>
@@ -61,6 +63,7 @@
 trk::SocketServer::
 SocketServer(int portno)
 {
+    dbg_ = 0;
     std::cout << "SocketServer.ctor, portno = " << portno << std::endl;
     listen_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
     if ( listen_fd_ == -1) {
@@ -88,7 +91,6 @@ SocketServer(int portno)
     }
     std::cout << "SocketServer.ctor, connected on portno = " << portno << 
                            ", socket_fd = " << socket_fd_ << std::endl;
-
 }
 
 trk::SocketServer::
@@ -106,11 +108,6 @@ write(PacketBuffer* ebfr)
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
-#if DEBUG_SCKT > 0
-    std::cout << "SocketServer.write, tag = " << tag << ", socket_fd = " 
-                                                 << socket_fd_ <<std::endl;
-    std::cout << "SocketServer.write, bfrlen = " << bfrlen << std::endl;
-#endif
 
     int nl = ::write( socket_fd_, &bfrlen, sizeof(int) );
     if ( nl != sizeof(int) ) {
@@ -131,22 +128,9 @@ trk::PacketBuffer*
 trk::SocketServer::
 read()
 {
-#if DEBUG_SCKT > 0
-    std::cout << "SocketServer.read. ready to read new PacketBuffer" << std::endl;
-#endif
     int bfrlen;
     int nl;
     nl = ::read(socket_fd_, &bfrlen, sizeof(int));
-/*
-        char* errmsg = strerror(errno);
-        std::ostringstream ost;
-        ost << "SocketServer::read, socket error reading bfrlen, \"" << errmsg << "\"";
-        throw event_device_error(ost.str() );
-    } else {
-*/
-#if DEBUG_SCKT > 0
-    std::cout << "SocketServer.read, nl = " << nl << ", bfrlen = " << bfrlen << std::endl;
-#endif
     if ( nl == 0 )  {
         std::ostringstream ost;
         ost << "SocketServer:read, socket_fd = " << socket_fd_ << 
@@ -164,7 +148,6 @@ read()
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
-    std::cout << "SocketServer.read, tag = " << tag << std::endl;
     PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;
@@ -172,7 +155,7 @@ read()
 
 int
 trk::SocketServer::
-wait_for_packet(CmdServer* cmd_server)
+wait_for_packet(PacketServer* cmd_server)
 {
     thread_running_ = true;
     cmd_server_     = cmd_server;

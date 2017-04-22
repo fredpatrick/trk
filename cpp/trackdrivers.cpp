@@ -54,7 +54,8 @@ TrackDrivers()
 {
     LayoutConfig* layout_config = LayoutConfig::instance();
     sensor_names_ = layout_config->track_sensor_names();
-    sensor_drivers_.reserve( sensor_names_.size() );
+    std::cout << "TrackDrivers.ctor, track_sensors size = " << sensor_names_.size() << std::endl;
+    sensor_drivers_.resize( sensor_names_.size() );
     for ( int i = 0; i < sensor_names_.size(); i++) {
         TrackDriver* z  = new TrackDriver(sensor_names_[i]);
         sensor_drivers_[layout_config->track_sensor_index( sensor_names_[i] ) ] = z;
@@ -74,6 +75,7 @@ bool
 trk::TrackDrivers::
 enable_sensors(EventDevice* efd )
 {
+    std::cout << "TrackDrivers.enable_sensors, cout = " << sensor_drivers_.size() << std::endl;
     for ( int i = 0; i < sensor_drivers_.size(); i++) {
         sensor_drivers_[ i ]->enable_sensor(efd);
     }
