@@ -96,7 +96,7 @@ DemuxAddress::set(int addr)
     gpios_[3]->value( (int)b[3] );
     gpios_[4]->value(0);
 
-    usleep(50000);
+    usleep(100000);
     gpios_[4]->value(1);
     return true;
 }

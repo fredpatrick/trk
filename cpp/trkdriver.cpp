@@ -55,12 +55,14 @@ using namespace trk;
 pthread_mutex_t write_event_ = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char* argv[]) {
+    std::cout << "\n\n\n\n\n" << std::endl;
+    std::cout << "#################################################################";
+    std::cout << "################### trkDriver begins" << std::endl;
     int debug_level = trk::debug_level(argc, argv);
 
     SocketServer* ess = 0;
     ess = new SocketServer(17303);
-    PacketServer* ps = new PacketServer(ess);
-    ps->enable(debug_level);
+    PacketServer(ess, debug_level);
     return 0;
 }
 

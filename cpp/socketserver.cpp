@@ -108,6 +108,7 @@ write(PacketBuffer* ebfr)
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
+    std::cout << "SocketServer.write, tag = " << tag << std::endl;
 
     int nl = ::write( socket_fd_, &bfrlen, sizeof(int) );
     if ( nl != sizeof(int) ) {

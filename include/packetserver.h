@@ -63,21 +63,19 @@ namespace trk {
     class PacketServer {
 
         public:
-            PacketServer(SocketServer* ss);
+            PacketServer(SocketServer* ss, int debug_level);
             ~PacketServer();
 
-            int             enable(int debug_level);
             void            packet(int ierr);
         private:
             void            process_cmds(PacketBuffer* pbfr);
-            void            startup_process(PacketBuffer* pbfr);
+            void            begin_startup(PacketBuffer* pbfr);
+            void            finish_startup(PacketBuffer* pbfr);
 
-            Drivers*        drivers_;
-            BlockDrivers*   block_drivers_;
-            BreakDrivers*   break_drivers_;
-            SwitchDrivers*  switch_drivers_;
-            TrackDrivers*   track_drivers_;
-
+            BlockDrivers*       block_drivers_;
+            BreakDrivers*       break_drivers_;
+            SwitchDrivers*      switch_drivers_;
+            TrackDrivers*       track_drivers_;
             int             debug_level_;
             SocketServer*   ss_;
             EventDevice*    event_fd_;

@@ -64,10 +64,10 @@ instance()
 trk::Drivers::
 Drivers()
 {
-    block_drivers_ = new BlockDrivers();
-    break_drivers_  = new BreakDrivers();
-    switch_drivers_ = new SwitchDrivers();
-    track_drivers_  = new TrackDrivers();
+    block_drivers_  = 0;
+    break_drivers_  = 0;
+    switch_drivers_ = 0;
+    track_drivers_  = 0;
 }
 
 trk::Drivers::
@@ -83,9 +83,13 @@ void
 trk::Drivers::
 enable(EventDevice* efd)
 {
-    break_drivers_->enable_sensors(efd);
+    block_drivers_ = new BlockDrivers();
     block_drivers_->enable_sensors(efd);
+    break_drivers_  = new BreakDrivers();
+    break_drivers_->enable_sensors(efd);
+    switch_drivers_ = new SwitchDrivers();
     switch_drivers_->enable_sensors(efd);
+    track_drivers_  = new TrackDrivers();
     track_drivers_->enable_sensors(efd);
 }
 

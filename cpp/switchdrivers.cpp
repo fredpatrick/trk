@@ -53,7 +53,7 @@ SwitchDrivers()
     std::cout << "SwitchDrivers:ctor" << std::endl;
     for ( int i = 0; i < 6; i++) {
         switch_[i] = new SwitchDriver(i);
-        switch_[i]->set(THRU);
+        //switch_[i]->set(THRU);
     }
 }
 

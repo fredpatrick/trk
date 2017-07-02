@@ -45,39 +45,53 @@
 #ifndef TRK_SWITCHDRIVER_HH
 #define TRK_SWITCHDRIVER_HH
 
+#include "inputsensor.h"
 #include "trkutl.h"
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace trk {
 
 class InputGPIO;
 class LayoutConfig;
 class DebugCntl;
-class SwitchSensor;
+class JobClock;
 class DemuxAddress;
 class EventDevice;
 
-class SwitchDriver {
+class SwitchDriver  : public InputSensor 
+{
     public:
         SwitchDriver(int sw_num);
         ~SwitchDriver();
 
         bool            enable_sensors(EventDevice* efd);
+        void            event(int, InputGPIO*);
         void           set(int v);
-        void sensor_event(int value, int cout, const SW_DIRECTION& sw_direc);
         SW_DIRECTION    scan();
         int             sw_num();
+        int             value() { return 0; }
+        int             count() { return 0;}
+        double          timeofday() { return 0.0; }
+        
     private:
         LayoutConfig*   layout_config_;
         DebugCntl*      dbg_;
+        JobClock*       job_clock_;
         int             sw_num_;
-        SW_DIRECTION    sw_direc_;
+        SW_DIRECTION    state_;;
         std::string     switch_name_;
         InputGPIO*      gpio_thru_;
         InputGPIO*      gpio_out_;
-        SwitchSensor*   switch_sensor_thru_;
-        SwitchSensor*   switch_sensor_out_;
         DemuxAddress*   demux_address_;
+        EventDevice*    event_device_;
+        bool            ignore_event_;
+        double          tm_event_;
+        int             event_count_;
+        SW_DIRECTION    event_state_0_;
+        SW_DIRECTION    event_state_1_;
+        SW_DIRECTION    event_state(InputGPIO* gpio);
 };
 
 }

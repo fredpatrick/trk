@@ -68,7 +68,6 @@ TrackDriver::TrackDriver(const std::string& sensor_name)
 trk::TrackDriver::
 ~TrackDriver()
 {
-//  std::cout << "TrackDriver.dtor" << std::endl;
     if ( track_sensor_) track_sensor_->ignore_event(true);
     delete track_gpio_;
 }

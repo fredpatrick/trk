@@ -64,7 +64,9 @@ TrackDrivers()
 }
 
 trk::TrackDrivers::
-~TrackDrivers() {
+~TrackDrivers() 
+{
+
     for ( int i = 0; i < sensor_drivers_.size(); i++) {
         delete sensor_drivers_[i];
     }

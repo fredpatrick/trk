@@ -56,7 +56,7 @@ BlockDrivers()
 {
     LayoutConfig* layout_config = LayoutConfig::instance();
     block_sensor_names_ = layout_config-> block_sensor_names();
-    blocks_.reserve(block_sensor_names_.size() );
+    blocks_.resize(block_sensor_names_.size() );
     for ( int i = 0; i < block_sensor_names_.size(); i++) {
         BlockDriver* b = new BlockDriver(block_sensor_names_[i]);
         int bix = layout_config->block_sensor_index( block_sensor_names_[i] );

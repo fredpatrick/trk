@@ -86,8 +86,9 @@ event(int ierr, InputGPIO* gpio)
     ier = pthread_mutex_unlock(&write_event_);
     if (ier != 0 ) std::cout << "BreakSensor.event, couldn't unlock mutex, ier = " <<
                                  ier << std::endl;
-    Drivers* drivers_ = Drivers::instance();
-    delete drivers_;
+    //Drivers* drivers_ = Drivers::instance();
+    //delete drivers_;
+
     EnablePCB::instance()->off();
     exit(0);
 }
