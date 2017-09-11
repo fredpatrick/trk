@@ -7,5 +7,5 @@ cpp/*.swp
 cpp/tmp
 include/tmp
 bin/trkClear
-bin/trkDriver
+bin/trkdriver
 bin/listConfig
