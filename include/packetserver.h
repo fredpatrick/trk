@@ -63,7 +63,7 @@ namespace trk {
     class PacketServer {
 
         public:
-            PacketServer(SocketServer* ss, int debug_level);
+            PacketServer(SocketServer* ss, bool& shutdown, int debug_level);
             ~PacketServer();
 
             void            packet(int ierr);
@@ -77,6 +77,7 @@ namespace trk {
             SwitchDrivers*      switch_drivers_;
             TrackDrivers*       track_drivers_;
             int             debug_level_;
+            bool&               shutdown_;
             SocketServer*   ss_;
             EventDevice*    event_fd_;
     };

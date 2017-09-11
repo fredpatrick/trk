@@ -59,10 +59,14 @@ int main(int argc, char* argv[]) {
     std::cout << "#################################################################";
     std::cout << "################### trkDriver begins" << std::endl;
     int debug_level = trk::debug_level(argc, argv);
+    bool shutdown = false;
 
     SocketServer* ess = 0;
     ess = new SocketServer(17303);
-    PacketServer(ess, debug_level);
+    while (!shutdown) {
+        ess->wait_for_connection();
+        PacketServer(ess, shutdown,debug_level);
+    }
     return 0;
 }
 

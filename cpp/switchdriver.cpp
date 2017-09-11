@@ -68,10 +68,10 @@ SwitchDriver::SwitchDriver(int sw_num)
     SWKey keythru  = {sw_num, THRU};
     switch_name_   = layout_config_-> switch_name(keythru);
     int gpio_num   = layout_config_->switch_sensor_gpio_num(keythru);
-    gpio_thru_     = new InputGPIO(gpio_num);
+    gpio_thru_     = new InputGPIO(gpio_num, "both");
     SWKey keyout   = {sw_num, OUT};
     gpio_num       = layout_config_->switch_sensor_gpio_num(keyout);
-    gpio_out_      = new InputGPIO(gpio_num);
+    gpio_out_      = new InputGPIO(gpio_num, "both");
     scan();
     event_count_   = 0;
     ignore_event_  = false;
@@ -93,11 +93,9 @@ enable_sensors(EventDevice* efd)
     SWKey key;
     key.num = sw_num_;
     key.swd = THRU;
-    gpio_thru_->edge_type(BOTH);
     gpio_thru_->debounce_time(200);
     gpio_thru_->wait_for_edge(this);
 
-    gpio_out_->edge_type(BOTH);
     gpio_out_->debounce_time(200);
     gpio_out_->wait_for_edge(this);
 

@@ -60,9 +60,8 @@ enable_sensors(EventDevice* efd )
 {
     LayoutConfig* layoutcfg = LayoutConfig::instance();
     int gpio_num = layoutcfg->break_sensor_gpio_num();
-    gpio_brk_ = new InputGPIO(gpio_num);
+    gpio_brk_ = new InputGPIO(gpio_num, "rising");
     brk_event_sensor_ = new BreakSensor( efd);
-    gpio_brk_->edge_type(RISING);
     gpio_brk_->debounce_time(200);
     gpio_brk_->wait_for_edge(brk_event_sensor_);
 }

@@ -57,14 +57,14 @@ class EnablePCB {
 
         ~EnablePCB();
 
-        int on();
-        int off();
+        void on();
+        void off();
 
     protected:
         EnablePCB();
 
     private:
-        GPIO*                 gpio_pwr_;
+        OutputGPIO*           gpio_pwr_;
         static EnablePCB*     instance_;
         DebugCntl*            dbg_;
 };

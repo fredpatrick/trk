@@ -61,7 +61,7 @@ TrackDriver::TrackDriver(const std::string& sensor_name)
     dbg_ = DebugCntl::instance();
     int gpio_num = layout_config->track_sensor_gpio_num(sensor_name_);
     sensor_index_ = layout_config->track_sensor_index(sensor_name_);
-    track_gpio_  = new InputGPIO(gpio_num);
+    track_gpio_  = new InputGPIO(gpio_num, "both");
     track_sensor_ = 0;
 }
 
@@ -78,7 +78,6 @@ enable_sensor(EventDevice* efd)
 {
 
     track_sensor_= new TrackSensor(efd, sensor_name_, sensor_index_);
-    track_gpio_->edge_type(BOTH);
     track_gpio_->debounce_time(200);
     track_gpio_->wait_for_edge(track_sensor_);
 

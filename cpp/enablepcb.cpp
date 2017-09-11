@@ -78,20 +78,20 @@ trk::EnablePCB::
     delete gpio_pwr_;
 }
 
-int
+void
 trk::EnablePCB::
 on()
 {
     if ( dbg_->check(2) ) {
         std::cout << "EnablePCB.ctor, printed circuit power on" << std::endl;
     }
-    return gpio_pwr_->value(1);
+    gpio_pwr_->set_value(1);
 }
 
-int
+void
 trk::EnablePCB::
 off()
 {
-    return gpio_pwr_->value(0);
+    gpio_pwr_->set_value(0);
 }
 

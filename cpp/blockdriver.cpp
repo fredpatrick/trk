@@ -64,7 +64,7 @@ BlockDriver(const std::string& sensor_name)
     block_sensor_index_         = layout_config->block_sensor_index(sensor_name);
 
     int gpio_num                = layout_config->block_sensor_gpio_num(sensor_name);
-    gpio_                       = new InputGPIO(gpio_num);
+    gpio_                       = new InputGPIO(gpio_num, "both");
     block_sensor_               = 0;
 }
 
@@ -81,7 +81,6 @@ enable_sensor(EventDevice* efd)
 {
 
     block_sensor_ = new BlockSensor(efd, sensor_name_);
-    gpio_->edge_type(BOTH);
     gpio_->debounce_time(200);
     gpio_->wait_for_edge(block_sensor_);
 

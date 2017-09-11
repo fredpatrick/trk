@@ -66,8 +66,9 @@
 #include "illegal_cmdpacket.h"
 
 trk::PacketServer::
-PacketServer(SocketServer* ss, int debug_level)
+PacketServer(SocketServer* ss, bool& shutdown, int debug_level) : shutdown_(shutdown)
 {
+    shutdown_       = false;
     ss_             = ss;
     debug_level_ = debug_level;
     ss_->wait_for_packet(this);
@@ -125,6 +126,12 @@ process_cmds(PacketBuffer* pbfr)
     if (        command == "break" ) {
         std::cout << "#####################################################################";
         std::cout << "PacketServer.process_cmds, break" << std::endl;
+        shutdown_ = false;
+        ::pthread_exit(0);
+    } else if (        command == "shutdown" ) {
+        std::cout << "#####################################################################";
+        std::cout << "PacketServer.process_cmds, shutdown" << std::endl;
+        shutdown_ = true;
         ::pthread_exit(0);
     } else if ( command == "finish_startup" ) {
         finish_startup(pbfr);

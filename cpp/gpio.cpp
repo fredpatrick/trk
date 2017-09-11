@@ -31,6 +31,7 @@
  */
 
 #include "gpio.h"
+#include "gpio_file_error.h"
 #include "inputsensor.h"
 
 #include<iostream>
@@ -51,105 +52,77 @@ using namespace std;
 trk::GPIO::
 GPIO(int number)
 {
-    number_     = number;
-    ostringstream s;
-    s << "gpio" << number_;
-    name_       = string(s.str());
-    path_       = GPIO_PATH + name_ + "/";
-    export_gpio();
-    usleep(250000); // 250ms delay to give Linux time to set up the sysfs structure
+    gpio_number_     = number;
+    gpio_base_path_  = "/sys/class/gpio/"; 
+                                                            // write gpio_number to export file
+    std::string export_filnam = gpio_base_path_ + "export";
+    std::ofstream fs;
+    fs.open( export_filnam.c_str() );
+    if ( !fs.is_open() ) {
+        throw  gpio_file_error("export gpio file open failure", gpio_number_);
+    }
+    fs << gpio_number_;
+    fs.close();
+    ::usleep(250000); // 250ms delay to give Linux time to set up the sysfs structure
+
+    std::ostringstream ss;
+    ss << "gpio" << gpio_number_;
+    gpio_dirnam_ = gpio_base_path_ + ss.str() + "/";
 }
 
 trk::GPIO::
 ~GPIO()
 {
 //  std::cout << "GPIO.dtor" << endl;
-    unexport_gpio();
-}
-
-int 
-trk::GPIO::
-export_gpio()
-{
-   return gpio_write(GPIO_PATH, "export", number_);
+    std::string unexport_filnam = gpio_base_path_ + "unexport";
+    std::ofstream fs;
+    fs.open( unexport_filnam.c_str() );
+    if ( !fs.is_open() ) {
+        throw  gpio_file_error("unexport gpio file open failure", gpio_number_);
+    }
+    fs << gpio_number_;
+    fs.close();
 }
 
 int
 trk::GPIO::
-unexport_gpio()
+value()
 {
-   return gpio_write(GPIO_PATH, "unexport", number_);
+    ::lseek (gpio_value_fd_, 0, SEEK_SET);
+    char   vc[2];
+    int nc = ::read(gpio_value_fd_, vc, 1);
+    vc[1] = 0;
+    int v = ::atoi(vc);
+    return v;
 }
-
-int
-trk::GPIO::
-value(){
-	string input = gpio_read(path_, "value");
-	if (input == "0") return 0;
-	else              return 1;
-}
-
-int 
-trk::GPIO::
-value(int value)
-{
-    switch(value){
-    case 1: 
-        return gpio_write(path_, "value", "1");
-    case 0: 
-        return gpio_write(path_, "value", "0");
-    }
-    return -1;
-}
-
-int 
-trk::GPIO::
-gpio_write(string path, string filename, int gpio_parm)
-{
-   ostringstream s;
-   s << gpio_parm;
-   return gpio_write(path,filename,s.str());
-}
-
-int 
-trk::GPIO::
-gpio_write(string path, string filename, string gpio_parm)
-{
-   ofstream fs;
-   fs.open((path + filename).c_str());
-   if (!fs.is_open()){
-	   perror("GPIO: write failed to open file ");
-  	   return -1;
-   }
-   fs << gpio_parm;
-   fs.close();
-   return 0;
-}
-
-string 
-trk::GPIO::
-gpio_read(string path, string filename)
-{
-   ifstream fs;
-   fs.open((path + filename).c_str());
-   if (!fs.is_open()){
-	   perror("GPIO: read failed to open file ");
-    }
-   string input;
-   getline(fs,input);
-   fs.close();
-   return input;
-}
-
 
 /************************************************ class InputGPIO
  *************************************************************/
 
 trk::InputGPIO::
-InputGPIO(int number) : GPIO(number)
+InputGPIO(int number, const std::string& edge_type) : GPIO(number)
 {
-    gpio_write(path_, "direction", "in");
-//  std::cout << "InputGPIO.ctor: gpio direction set " << std::endl;
+    std::ofstream fs;
+    fs.open((gpio_dirnam_ + "direction").c_str());
+    if ( !fs.is_open() ) {
+        throw gpio_file_error("open failure for direction file", gpio_number_);
+    }
+    fs << "in";
+    fs.flush();
+    fs.close();
+
+    fs.open((gpio_dirnam_ + "edge").c_str());
+    if ( !fs.is_open() ) {
+        throw gpio_file_error("open failure for edge file", gpio_number_);
+    }
+    fs << edge_type;
+    fs.flush();
+    fs.close();
+
+    if ((gpio_value_fd_ = ::open((gpio_dirnam_ + "value").c_str(), 
+                                  O_RDONLY | O_NONBLOCK)) == -1) {
+        throw gpio_file_error("open failure on value file", gpio_number_);
+    }
 
     debounce_time_ = 0;
     ev_count_ = 0;
@@ -161,25 +134,9 @@ trk::InputGPIO::
 {
 //  std::cout << "InputGPIO.dtor" << endl;
 }
+    
 
-int
-trk::InputGPIO::
-edge_type(GPIO_EDGE et)
-{
-    switch(et)
-    {
-        case NONE: 
-            return gpio_write(path_, "edge", "none");
-        case RISING: 
-            return gpio_write(path_, "edge", "rising");
-        case FALLING: 
-            return gpio_write(path_, "edge", "falling");
-        case BOTH: 
-            return gpio_write(path_, "edge", "both");
-   }
-   return -1;
-}
-
+/*
 trk::GPIO_EDGE 
 trk::InputGPIO::edge_type()
 {
@@ -193,6 +150,7 @@ trk::InputGPIO::edge_type()
     else 
         return NONE;
 }
+*/
 
 int 
 trk::InputGPIO::
@@ -226,12 +184,6 @@ int
 trk::InputGPIO::
 wait_for_edge()           //  block waiting for edge - see epoll man page
 {
-    int     fd;
-    if ((fd = open((path_ + "value").c_str(), O_RDONLY | O_NONBLOCK)) == -1) {
-       perror("GPIO: Failed to open file");
-       return -1;
-    }
-
     int epollfd = epoll_create(1);
     if (epollfd == -1) {
 	   perror("GPIO: Failed to create epollfd");
@@ -240,9 +192,9 @@ wait_for_edge()           //  block waiting for edge - see epoll man page
 
     struct   epoll_event ev;
     ev.events = EPOLLIN | EPOLLET | EPOLLPRI; //read operation | edge triggered | urgent data
-    ev.data.fd = fd;  // attach the file file descriptor
+    ev.data.fd = gpio_value_fd_;  // attach the file file descriptor
 
-    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
+    if (epoll_ctl(epollfd, EPOLL_CTL_ADD, gpio_value_fd_, &ev) == -1) {
        perror("InputGPIO: Failed to add control interface");
        return -1;
     }
@@ -260,7 +212,6 @@ wait_for_edge()           //  block waiting for edge - see epoll man page
             ev_count_++;
 	}
     }
-    close(fd);
     if (count==5) return -1;
     return 0;
 }
@@ -271,7 +222,18 @@ wait_for_edge()           //  block waiting for edge - see epoll man page
 trk::OutputGPIO::
 OutputGPIO(int number) : GPIO(number)
 {
-    gpio_write(path_, "direction", "out");
+    std::ofstream fs;
+    fs.open((gpio_dirnam_ + "direction").c_str() );
+    if ( !fs.is_open() ) {
+        throw gpio_file_error("open failure for direction file", gpio_number_);
+    }
+    fs << "out";
+    fs.flush();
+    fs.close();
+
+    if ((gpio_value_fd_ = ::open((gpio_dirnam_ + "value").c_str(), O_RDWR)) == -1) {
+        throw gpio_file_error("open failure on value file", gpio_number_);
+    }
 
     toggle_period_  = 100;
     toggle_number_  = -1; //infinite number
@@ -284,11 +246,25 @@ trk::OutputGPIO::
 //  std::cout << "OutputGPIO.dtor" << endl;
 }
 
+void
+trk::OutputGPIO::
+set_value(int v)
+{
+    char vc[2];
+    vc[1] = 0;
+    if ( v == 0 ) vc[0] = '0';
+    else if ( v == 1 ) vc[0] = '1';
+
+    ::lseek(gpio_value_fd_, 0, SEEK_SET);
+    int nc = ::write(gpio_value_fd_, vc, 1);
+}
+
 int 
 trk::OutputGPIO::
-toggle_output(){
-    if ( value() == 1 ) value(0);
-    else                value(1);
+toggle_output()
+{
+    if ( value() == 1 ) set_value(0);
+    else                set_value(1);
     return 0;
 }
 
@@ -321,8 +297,8 @@ threaded_toggle(void *attr){
 	OutputGPIO *gpio = static_cast<OutputGPIO*>(attr);
 	int v = gpio->value(); //find current value
 	while(gpio->thread_running_){
-		if (v == 0)	gpio->value(1);
-		else            gpio->value(0);
+		if (v == 0)	gpio->set_value(1);
+		else            gpio->set_value(0);
 		usleep(gpio->toggle_period_ * 500);
 		v = 1 - v;
 		if(gpio->toggle_number_ > 0 ) gpio->toggle_number_--;
@@ -330,18 +306,3 @@ threaded_toggle(void *attr){
 	}
 	return 0;
 }
-
-/*
-int GPIO::streamOpen(){
-	stream.open((path + "value").c_str());
-	return 0;
-}
-int GPIO::streamWrite(int value){
-	stream << value << std::flush;
-	return 0;
-}
-int GPIO::streamClose(){
-	stream.close();
-	return 0;
-}
-*/

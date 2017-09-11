@@ -63,8 +63,9 @@
 trk::SocketServer::
 SocketServer(int portno)
 {
+    portno_ = portno;
     dbg_ = 0;
-    std::cout << "SocketServer.ctor, portno = " << portno << std::endl;
+    std::cout << "SocketServer.ctor, portno = " << portno_ << std::endl;
     listen_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
     if ( listen_fd_ == -1) {
         ::perror("socket");
@@ -75,28 +76,37 @@ SocketServer(int portno)
     ::memset(&serv_addr, 0, sizeof(serv_addr) );
     serv_addr.sin_family        = AF_INET;
     serv_addr.sin_addr.s_addr   = htonl(INADDR_ANY);
-    serv_addr.sin_port          = htons(portno);
+    serv_addr.sin_port          = htons(portno_);
     int ierr = ::bind(listen_fd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr) );
     if ( ierr == -1 ) {
         ::perror( "bind");
         throw event_device_error("SocketServer-ctor socket");
     }
 
-    std::cout << "SocketServer.ctor, listening on portno = " << portno << std::endl;
+    std::cout << "SocketServer.ctor, listening on portno = " << portno_ << std::endl;
     listen(listen_fd_, 10);
-    socket_fd_ = accept(listen_fd_, (struct sockaddr*)NULL, NULL);
-    if ( socket_fd_ == -1 ) {
-        ::perror("accept");
-        throw event_device_error("SocketServer-ctor socket");
-    }
-    std::cout << "SocketServer.ctor, connected on portno = " << portno << 
-                           ", socket_fd = " << socket_fd_ << std::endl;
+    std::cout << "SocketServer.ctor, listen_fd = " << listen_fd_ << std::endl;
 }
 
 trk::SocketServer::
 ~SocketServer()
 {
+    std::cout << "socketserver.dtor" << std::endl;
     close ( listen_fd_);
+}
+
+void
+trk::SocketServer::
+wait_for_connection()
+{
+    std::cout << "SocketServer.wait_for_connection, listen_fd = " << listen_fd_ << std::endl;
+    socket_fd_ = accept(listen_fd_, (struct sockaddr*)NULL, NULL);
+    if ( socket_fd_ == -1 ) {
+        ::perror("accept");
+        throw event_device_error("SocketServer-ctor socket");
+    }
+    std::cout << "SocketServer.ctor, connected on portno = " << portno_ << 
+                           ", socket_fd = " << socket_fd_ << std::endl;
 }
 
 int

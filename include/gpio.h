@@ -29,16 +29,11 @@
 #define TRK_GPIO_HH_
 #include<string>
 #include<fstream>
-using std::string;
-using std::ofstream;
-
-#define GPIO_PATH "/sys/class/gpio/"
 
 namespace trk {
 
 class InputSensor;
 
-enum    GPIO_DIRECTION{ INPUT, OUTPUT };
 enum    GPIO_EDGE{ NONE, RISING, FALLING, BOTH };
 
 class GPIO {
@@ -47,36 +42,23 @@ class GPIO {
 	GPIO(int number);               //constructor will export the pin
 	~GPIO();                        //destructor will unexport the pin
 
-	int number() { return number_; }
+	int number() { return gpio_number_; }
 
-	int         value(int v);
 	int         value();
 
-    private:
-	int         number_;
-	string      name_; 
     protected:
-	int         export_gpio();
-	int         unexport_gpio();
-	int         gpio_write(string path,
-                               string filename,
-                               string value);
-	int         gpio_write(string path, 
-                               string filename, 
-                               int    value);
-	string      gpio_read (string path, 
-                               string filename);
-        string          path_;
+	int         gpio_number_;
+        int         gpio_value_fd_;
+        std::string gpio_base_path_;
+        std::string gpio_dirnam_;
 };
 
 class InputGPIO : public GPIO
 {
     public:
-        InputGPIO(int number);
+        InputGPIO(int number,const std::string& edge_type);
         ~InputGPIO();
 
-        int         edge_type(GPIO_EDGE);
-        GPIO_EDGE   edge_type();
         void        debounce_time(int time){ debounce_time_ = time;}
         int         ev_count() { return ev_count_;}
         int         wait_for_edge(InputSensor* );
@@ -95,6 +77,8 @@ class OutputGPIO : public GPIO
     public:
         OutputGPIO(int number);
         ~OutputGPIO();
+
+	void        set_value(int v);
 
         int toggle_output();
         int toggle_output(int time);

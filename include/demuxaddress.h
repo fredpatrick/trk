@@ -64,7 +64,7 @@ class DemuxAddress {
         DemuxAddress();
 
     private:
-        GPIO*       gpios_[5];
+        OutputGPIO* gpios_[5];
         static      DemuxAddress*   instance_;
 };
 

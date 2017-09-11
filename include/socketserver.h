@@ -61,12 +61,14 @@ namespace trk
             SocketServer(int portno);
             ~SocketServer();
 
+            void         wait_for_connection();
             int          write(PacketBuffer* ebfr);
             PacketBuffer* read();
             int          wait_for_packet(PacketServer* cmd_server);
             int          wait_for_exit();
             int          wait_for_packet();
         private:
+            int         portno_;
             int         socket_fd_;
             int         listen_fd_;
 
