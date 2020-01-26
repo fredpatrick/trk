@@ -42,39 +42,38 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
+#ifndef TRK_PACKETSERVERMANAGER_HH
+#define TRK_PACKETSERVERMANAGER_HH
 
-#include "eventdevice.h"
-#include "jobclock.h"
 
-#include <string>
-#include <pthread.h>
+#include <vector>
+
 namespace trk
 {
     class PacketServer;
-    class DebugCntl;
-    class JobClock;
-    class SocketServer: public EventDevice
+    class CNTLPacketServer;
+    class PacketServerManager
     {
         public:
-            SocketServer(int socket_fd);
-            ~SocketServer();
+            
+            static PacketServerManager* instance();
 
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-            int          wait_for_packet(PacketServer* packet_server);
-            int          wait_for_exit();
-            int          wait_for_packet();
+            ~PacketServerManager();
+
+            void                       listen_for_connection(int portno);
+            void                       stop_listening();
+
+        protected:
+            PacketServerManager();
         private:
-            int         socket_fd_;
 
-            static void*  threaded_poll(void* attr);
-            pthread_t     packet_thread_;
-            bool          thread_running_;
-            PacketServer* packet_server_;
-            DebugCntl*    dbg_;
-            JobClock*     jobclock_;
+            int                         portno_;
+            std::vector<PacketServer*>  packet_servers_;
+            bool                        shutdown_;
+            CNTLPacketServer*           cntl_packet_server_;
+            int                         listen_fd_;
+
+            static PacketServerManager* instance_;
     };
 }
 #endif

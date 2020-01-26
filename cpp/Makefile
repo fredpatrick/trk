@@ -8,7 +8,7 @@ OBJ_PREFIX = $(PRJDIR)/lib/objs/
 SUBDIRS = 
 
 #********** define prg tagets (i.e. .cc's for execuatables not lib members)
-PRGCC := trkdriver.cpp trktimer.cpp
+PRGCC := trkdriver.cpp trktimer.cpp trkpwr.cpp
 
 ALLCC = $(wildcard *.cpp)
 include $(MAKE_DEPS)

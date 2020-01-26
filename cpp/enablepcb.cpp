@@ -67,7 +67,10 @@ EnablePCB()
 {
     LayoutConfig* layout_config = LayoutConfig::instance();
     dbg_ = DebugCntl::instance();
+    std::cout << "EnablePCB.ctor, pcb gpio num  " << 
+                                 layout_config->pcb_power_gpio_num() << std::endl;
     int gpio_num  = layout_config->pcb_power_gpio_num();
+    std::cout << "EnablePCB.ctor, gpio_num = " << gpio_num << std::endl;
     gpio_pwr_ = new OutputGPIO(gpio_num);
 }
 

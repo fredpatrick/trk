@@ -51,35 +51,21 @@
 #include <cstdlib>
 
 namespace trk {
-    class Drivers;
-    class BlockDrivers;
-    class BreakDrivers;
-    class SwitchDrivers;
-    class TrackDrivers;
-    class EventDevice;
-    class SocketServer;
     class PacketBuffer;
 
     class PacketServer {
 
         public:
-            PacketServer(SocketServer* ss, bool& shutdown, int debug_level);
+            PacketServer(int socket_fd);
             ~PacketServer();
 
-            void            packet(int ierr);
-        private:
-            void            process_cmds(PacketBuffer* pbfr);
-            void            begin_startup(PacketBuffer* pbfr);
-            void            finish_startup(PacketBuffer* pbfr);
+            virtual void    packet(int ierr) = 0;
 
-            BlockDrivers*       block_drivers_;
-            BreakDrivers*       break_drivers_;
-            SwitchDrivers*      switch_drivers_;
-            TrackDrivers*       track_drivers_;
-            int             debug_level_;
-            bool&               shutdown_;
-            SocketServer*   ss_;
-            EventDevice*    event_fd_;
+            int             socket_fd();
+
+        protected:
+            int socket_fd_;
+        private:
     };
 }
 #endif

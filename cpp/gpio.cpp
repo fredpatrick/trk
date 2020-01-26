@@ -59,7 +59,9 @@ GPIO(int number)
     std::ofstream fs;
     fs.open( export_filnam.c_str() );
     if ( !fs.is_open() ) {
-        throw  gpio_file_error("export gpio file open failure", gpio_number_);
+        std::ostringstream ss;
+        ss << "export gpio file open failure - " << export_filnam;
+        throw  gpio_file_error(ss.str().c_str(), gpio_number_);
     }
     fs << gpio_number_;
     fs.close();

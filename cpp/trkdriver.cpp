@@ -47,8 +47,8 @@
 #include <pthread.h>
 
 #include "trkutl.h"
-#include "packetserver.h"
-#include "socketserver.h"
+#include "packetservermanager.h"
+#include "event_device_error.h"
 
 using namespace trk;
 
@@ -56,17 +56,22 @@ pthread_mutex_t write_event_ = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char* argv[]) {
     std::cout << "\n\n\n\n\n" << std::endl;
-    std::cout << "#################################################################";
+    std::cout << "##############################################################" << std::endl;
     std::cout << "################### trkDriver begins" << std::endl;
     int debug_level = trk::debug_level(argc, argv);
     bool shutdown = false;
 
-    SocketServer* ess = 0;
-    ess = new SocketServer(17303);
-    while (!shutdown) {
-        ess->wait_for_connection();
-        PacketServer(ess, shutdown,debug_level);
+    setup_files();
+    DebugCntl* dbg = DebugCntl::instance();
+    dbg->level(debug_level);
+
+    PacketServerManager* ps = PacketServerManager::instance();
+    try {
+        ps->listen_for_connection(17303);
+    } catch ( event_device_error r ) {
+        std::cout << "trkDriver, main: " << r.reason() << std::endl;
     }
+    std::cout << "############### trkDriver exiting" << std::endl;
     return 0;
 }
 

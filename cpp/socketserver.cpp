@@ -61,52 +61,15 @@
 #include <sstream>
 
 trk::SocketServer::
-SocketServer(int portno)
+SocketServer(int socket_fd) : socket_fd_(socket_fd)
 {
-    portno_ = portno;
-    dbg_ = 0;
-    std::cout << "SocketServer.ctor, portno = " << portno_ << std::endl;
-    listen_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
-    if ( listen_fd_ == -1) {
-        ::perror("socket");
-        // need to throw exception here
-    }
-    std::cout << "SocketServer.ctor, listen_fd = " << listen_fd_ << std::endl;
-    struct sockaddr_in      serv_addr;
-    ::memset(&serv_addr, 0, sizeof(serv_addr) );
-    serv_addr.sin_family        = AF_INET;
-    serv_addr.sin_addr.s_addr   = htonl(INADDR_ANY);
-    serv_addr.sin_port          = htons(portno_);
-    int ierr = ::bind(listen_fd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr) );
-    if ( ierr == -1 ) {
-        ::perror( "bind");
-        throw event_device_error("SocketServer-ctor socket");
-    }
-
-    std::cout << "SocketServer.ctor, listening on portno = " << portno_ << std::endl;
-    listen(listen_fd_, 10);
-    std::cout << "SocketServer.ctor, listen_fd = " << listen_fd_ << std::endl;
 }
 
 trk::SocketServer::
 ~SocketServer()
 {
     std::cout << "socketserver.dtor" << std::endl;
-    close ( listen_fd_);
-}
-
-void
-trk::SocketServer::
-wait_for_connection()
-{
-    std::cout << "SocketServer.wait_for_connection, listen_fd = " << listen_fd_ << std::endl;
-    socket_fd_ = accept(listen_fd_, (struct sockaddr*)NULL, NULL);
-    if ( socket_fd_ == -1 ) {
-        ::perror("accept");
-        throw event_device_error("SocketServer-ctor socket");
-    }
-    std::cout << "SocketServer.ctor, connected on portno = " << portno_ << 
-                           ", socket_fd = " << socket_fd_ << std::endl;
+    close ( socket_fd_);
 }
 
 int
@@ -115,9 +78,8 @@ write(PacketBuffer* ebfr)
 {
     int bfrlen = ebfr->bfrlen();
     char* bfr  = ebfr->bfr();
-    char ctag[4];
-    ::memcpy(ctag, bfr, 4);
-    std::string tag = ctag;
+                                          // This solely for the purpose of recording
+    std::string tag = bfr;                //  kind of packet is still being written
     std::cout << "SocketServer.write, tag = " << tag << std::endl;
 
     int nl = ::write( socket_fd_, &bfrlen, sizeof(int) );
@@ -156,9 +118,7 @@ read()
         throw event_device_error(ost.str() );
     }
 
-    char ctag[4];
-    ::memcpy(ctag, bfr, 4);
-    std::string tag = ctag;
+    std::string tag = bfr;
     PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;
@@ -166,10 +126,12 @@ read()
 
 int
 trk::SocketServer::
-wait_for_packet(PacketServer* cmd_server)
+wait_for_packet(PacketServer* packet_server)
 {
+    std::cout << "SocketServer:wait_for_packed called, socket_fd = " <<
+                    packet_server->socket_fd()  << std::endl;
     thread_running_ = true;
-    cmd_server_     = cmd_server;
+    packet_server_     = packet_server;
     if( ::pthread_create(&packet_thread_, NULL,
                          &threaded_poll,
                          static_cast<void*>(this)) ) {
@@ -178,6 +140,7 @@ wait_for_packet(PacketServer* cmd_server)
         ost << "SocketServer::wait_for_packet, unable to create pthread, \"" << errmsg << "\"";
         throw event_device_error(ost.str() );
     }
+    std::cout << "SocketServer.wait_for_packet returning" << std::endl;
     return 0;
 }
 
@@ -185,9 +148,11 @@ void*
 trk::SocketServer::
 threaded_poll(void* attr)
 {
+    std::cout << "SocketServer.threaded_poll-begin" << std::endl;
     SocketServer* ss = static_cast<SocketServer*>(attr);
     while ( ss->thread_running_ ) {
-        ss->cmd_server_->packet(ss->wait_for_packet());
+        ss->packet_server_->packet(ss->wait_for_packet());
+        std::cout << "SocketServer.threaded_poll processed packet" << std::endl;
     }
     return 0;
 }
@@ -224,6 +189,7 @@ wait_for_packet()
                                          "\"" << errmsg << "\"";
         throw event_device_error(ost.str() );
     }
+    std::cout << "SocketServer::wait_for_packet(), received event" << std::endl;
     return 0;
 }
 
@@ -232,6 +198,7 @@ trk::SocketServer::
 wait_for_exit()
 {
     void*   res;
+    thread_running_ = false;
     int ie = ::pthread_join(packet_thread_, &res);
     if ( ie == -1 ) {
         char* errmsg = ::strerror(errno);
@@ -240,5 +207,6 @@ wait_for_exit()
                                          "\"" << errmsg << "\"";
         throw event_device_error(ost.str() );
     }
+    std::cout << "SocketServer.wait_for_exit, after ::pthread_join" << std::endl;
     return 0;
 }

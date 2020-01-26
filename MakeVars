@@ -19,7 +19,7 @@ TRKBBB_VERSION     = $(shell tr b \. < $(TRKBBB_DIR)/VERSION)
 TRKU_VERSION     = $(shell tr b \. < $(TRKU_DIR)/VERSION)
 
 CXX             = c++ 
-CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
+CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread -std=c++11
 INCFLAGS        = -I.  -I$(TRKBBB_DIR)/include -I$(TRKU_DIR)/include
 LIBFLAGS        = -shared -fPIC
 

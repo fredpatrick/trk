@@ -42,39 +42,31 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
+#ifndef TRK_ESPPACKETSERVER_HH
+#define TRK_ESPPACKETSERVER_HH
 
-#include "eventdevice.h"
-#include "jobclock.h"
+#include "packetserver.h"
+#include "socketserver.h"
 
 #include <string>
-#include <pthread.h>
-namespace trk
-{
-    class PacketServer;
-    class DebugCntl;
-    class JobClock;
-    class SocketServer: public EventDevice
-    {
+#include <utility>
+#include <iostream>
+#include <cstdlib>
+
+namespace trk {
+    class SocketServer;
+    class PocketBuffer;
+
+    class ESPPacketServer : public PacketServer{
+
         public:
-            SocketServer(int socket_fd);
-            ~SocketServer();
+            ESPPacketServer(int socket_fd, bool& shutdown);
+            ~ESPPacketServer();
 
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-            int          wait_for_packet(PacketServer* packet_server);
-            int          wait_for_exit();
-            int          wait_for_packet();
+            void            packet(int ierr);
         private:
-            int         socket_fd_;
-
-            static void*  threaded_poll(void* attr);
-            pthread_t     packet_thread_;
-            bool          thread_running_;
-            PacketServer* packet_server_;
-            DebugCntl*    dbg_;
-            JobClock*     jobclock_;
+            bool&           shutdown_;
+            SocketServer*   ss_;
     };
 }
 #endif

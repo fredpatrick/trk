@@ -42,39 +42,49 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
+#ifndef TRK_CNTLPACKETSERVER_HH
+#define TRK_CNTLPACKETSERVER_HH
 
-#include "eventdevice.h"
-#include "jobclock.h"
+#include "packetserver.h"
+#include "cntlpacketserver.h"
+#include "socketserver.h"
 
 #include <string>
-#include <pthread.h>
-namespace trk
-{
-    class PacketServer;
-    class DebugCntl;
-    class JobClock;
-    class SocketServer: public EventDevice
+#include <utility>
+#include <iostream>
+#include <cstdlib>
+
+namespace trk {
+    class Drivers;
+    class BlockDrivers;
+    class BreakDrivers;
+    class SwitchDrivers;
+    class TrackDrivers;
+    class EventDevice;
+    class SocketServer;
+    class PacketBuffer;
+    class EnablePCB;
+
+    class CNTLPacketServer : public PacketServer
     {
         public:
-            SocketServer(int socket_fd);
-            ~SocketServer();
+            CNTLPacketServer(int socket_fd, bool& shutdown);
+            ~CNTLPacketServer();
 
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-            int          wait_for_packet(PacketServer* packet_server);
-            int          wait_for_exit();
-            int          wait_for_packet();
+            void            packet(int ierr);
         private:
-            int         socket_fd_;
+            void            process_cmds(PacketBuffer* pbfr);
+            void            begin_startup(PacketBuffer* pbfr);
+            void            finish_startup(PacketBuffer* pbfr);
 
-            static void*  threaded_poll(void* attr);
-            pthread_t     packet_thread_;
-            bool          thread_running_;
-            PacketServer* packet_server_;
-            DebugCntl*    dbg_;
-            JobClock*     jobclock_;
+            BlockDrivers*       block_drivers_;
+            BreakDrivers*       break_drivers_;
+            SwitchDrivers*      switch_drivers_;
+            TrackDrivers*       track_drivers_;
+            bool&               shutdown_;
+            SocketServer*       ss_;
+            EventDevice*        event_fd_;
+            EnablePCB*          enable_pcb_;
     };
 }
 #endif

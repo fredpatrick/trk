@@ -42,39 +42,51 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
-
-#include "eventdevice.h"
-#include "jobclock.h"
-
+#include <iostream>
 #include <string>
+#include <unistd.h>
 #include <pthread.h>
-namespace trk
-{
-    class PacketServer;
-    class DebugCntl;
-    class JobClock;
-    class SocketServer: public EventDevice
-    {
-        public:
-            SocketServer(int socket_fd);
-            ~SocketServer();
 
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-            int          wait_for_packet(PacketServer* packet_server);
-            int          wait_for_exit();
-            int          wait_for_packet();
-        private:
-            int         socket_fd_;
+#include "trkutl.h"
+#include "enablepcb.h"
+#include "filestore.h"
+#include "jobclock.h"
+#include "gpio_file_error.h"
+#include "packetservermanager.h"
 
-            static void*  threaded_poll(void* attr);
-            pthread_t     packet_thread_;
-            bool          thread_running_;
-            PacketServer* packet_server_;
-            DebugCntl*    dbg_;
-            JobClock*     jobclock_;
-    };
+using namespace trk;
+
+pthread_mutex_t write_event_ = PTHREAD_MUTEX_INITIALIZER;
+
+int main(int argc, char* argv[]) {
+    std::cout << "\n\n\n\n\n" << std::endl;
+    std::cout << "#################################################################";
+    std::cout << "################### trkpwr begins" << std::endl;
+    int debug_level = trk::debug_level(argc, argv);
+    trk::setup_files();
+
+    EnablePCB* epcb;
+    try {
+        epcb = EnablePCB::instance();
+    } catch ( gpio_file_error r ) {
+        std::cout << "trkpwr: :" << r.reason() << std::endl;
+    }
+
+    bool shutdown = false;
+    std::string cmd;
+    bool quit = false;
+    while ( !quit) {
+        std::cout << "Enter cmd on|off|quit : ";
+        std::cin  >> cmd;
+        if (cmd == "on" ) {
+            epcb->on();
+        } else if (cmd == "off") {
+            epcb->off();
+        } else if (cmd == "quit") {
+            quit = true;
+        } 
+    }
+    epcb->off();
+    return 1;
 }
-#endif
+

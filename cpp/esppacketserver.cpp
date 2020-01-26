@@ -42,39 +42,65 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
-
-#include "eventdevice.h"
-#include "jobclock.h"
-
-#include <string>
 #include <pthread.h>
-namespace trk
+#include "esppacketserver.h"
+#include "cmdpacket.h"
+#include "inipacket.h"
+#include "msgpacket.h"
+#include "debugcntl.h"
+#include "filestore.h"
+#include "jobclock.h"
+#include "demuxaddress.h"
+#include "enablepcb.h"
+#include "breakevent.h"
+#include "eventdevice.h"
+#include "packetbuffer.h"
+#include "drivers.h"
+#include "blockdrivers.h"
+#include "breakdrivers.h"
+#include "switchdrivers.h"
+#include "trackdrivers.h"
+#include "enablepcb.h"
+#include "socketserver.h"
+#include "event_device_error.h"
+#include "illegal_cmdpacket.h"
+
+trk::ESPPacketServer::
+ESPPacketServer(int socket_fd, bool& shutdown) : shutdown_(shutdown) , PacketServer{socket_fd}
 {
-    class PacketServer;
-    class DebugCntl;
-    class JobClock;
-    class SocketServer: public EventDevice
-    {
-        public:
-            SocketServer(int socket_fd);
-            ~SocketServer();
-
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-            int          wait_for_packet(PacketServer* packet_server);
-            int          wait_for_exit();
-            int          wait_for_packet();
-        private:
-            int         socket_fd_;
-
-            static void*  threaded_poll(void* attr);
-            pthread_t     packet_thread_;
-            bool          thread_running_;
-            PacketServer* packet_server_;
-            DebugCntl*    dbg_;
-            JobClock*     jobclock_;
-    };
+    ss_             = new SocketServer(socket_fd);    // Note: This creates a new pthread
+    ss_->wait_for_packet(this);
+//  ss_->wait_for_exit();
+    std::cout << "ESPPacketServer-ctor, socketserver thread created" << std::endl;
+    return;
 }
-#endif
+
+trk::ESPPacketServer::
+~ESPPacketServer()
+{
+    std::cout << "#####################################################################";
+    std::cout << "ESPPacketServer.dtor, deleting drivers" << std::endl;
+}
+
+void
+trk::ESPPacketServer::
+packet(int ierr)
+{
+    PacketBuffer* pbfr;
+    try {
+        pbfr = ss_->read();
+    } catch ( event_device_error r ) {
+        std::cout << "ESPPacketServer.packet: " << r.reason() << std::endl;
+        std::cout << "ESPPacketServer.packet, deleting drivers" << std::endl;
+        ::pthread_exit(0);
+    }
+
+    std::string tag = pbfr->tag();
+    std::cout << "ESPPacketServer.packet, packet received, tag = " << tag << std::endl;
+    if ( tag == "RFID" ) {
+        std::string nuid = pbfr->strdat();
+        std::cout << "ESPPacketServer.packet, nuid = " << nuid << std::endl;
+    } else {
+        std::cout << "need code here" << std::endl;
+    }
+}

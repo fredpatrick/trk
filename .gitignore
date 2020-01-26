@@ -9,3 +9,6 @@ include/tmp
 bin/trkClear
 bin/trkdriver
 bin/listConfig
+bin/trkpwr
+bin/trktimer
+
